@@ -28,14 +28,14 @@ adb shell input keyevent 224; sleep 2; adb shell input keyevent 82
 adb shell dumpsys media_session | tr -d '\r' | grep -A12 "$PKG" | head -14 >> $R
 adb shell cmd media_session dispatch pause 2>/dev/null || adb shell input keyevent 127
 log ""; log "## İndirme merkezi ve çevrimdışı oynatma"
-start --es ci dl:36; sleep 3; start --es ci dlezan:mekke; sleep 45; start --es open downloads; shot downloads_after 4
-fq=$(adb shell run-as $PKG ls -l files/media/quran/alafasy/ 2>/dev/null | tr -d '\r' | grep -c "36.mp3"); fe=$(adb shell run-as $PKG ls -l files/media/ezan/ 2>/dev/null | tr -d '\r' | grep -c "mekke.mp3")
-adb shell run-as $PKG ls -l files/media/quran/alafasy/ files/media/ezan/ 2>/dev/null | sed 's/^/    /' >> $R
-[ "$fq" -gt 0 ] && ok "Yasin (Alafasy) telefona indirildi" || ko "Sure indirilemedi"; [ "$fe" -gt 0 ] && ok "Mekke ezanı telefona indirildi" || ko "Ezan indirilemedi"
+start --es ci dl:sudais:36; sleep 3; start --es ci dlezan:mekke; sleep 75; start --es open downloads; shot downloads_after 4
+fq=$(adb shell run-as $PKG ls -l files/media/quran/sudais/ 2>/dev/null | tr -d '\r' | grep -c "36.mp3"); fe=$(adb shell run-as $PKG ls -l files/media/ezan/ 2>/dev/null | tr -d '\r' | grep -c "mekke.mp3")
+adb shell run-as $PKG ls -l files/media/quran/sudais/ files/media/ezan/ 2>/dev/null | sed 's/^/    /' >> $R
+[ "$fq" -gt 0 ] && ok "Yasin (Sudeys) telefona indirildi" || ko "Sure indirilemedi"; [ "$fe" -gt 0 ] && ok "Mekke ezanı telefona indirildi" || ko "Ezan indirilemedi"
 adb shell cmd connectivity airplane-mode enable; adb shell svc wifi disable; adb shell svc data disable; sleep 5
 start --es ci play:36; sleep 12
 st=$(adb shell dumpsys media_session | tr -d "\r" | grep -A14 "package=$PKG" | grep -m1 -o "state=PlaybackState {state=[A-Z_]*")
-[ "$st" = "state=PlaybackState {state=PLAYING" ] && ok "İnternet kapalıyken indirilen Yasin çalıyor" || ko "Çevrimdışı oynatma doğrulanamadı ($st)"
+[ "$st" = "state=PlaybackState {state=PLAYING" ] && ok "İnternet kapalıyken indirilen Yasin (Sudeys) çalıyor" || ko "Çevrimdışı oynatma doğrulanamadı ($st)"
 adb shell input keyevent 127; sleep 2
 start --es ci alarm25:mekke; sleep 3; adb shell input keyevent 223; sleep 35
 svc=$(adb shell dumpsys activity services $PKG | tr -d '\r' | grep -c "AdhanService"); used=$(adb logcat -d -s NurAdhan | grep -c "playing file:.*mekke.mp3")
@@ -84,4 +84,21 @@ if grep -q "FATAL EXCEPTION" $OUT/logcat.txt && grep -A3 "FATAL EXCEPTION" $OUT/
 else ok "Tüm ekran gezintisi, dil/tema değişimi, oynatma ve alarm boyunca çökme yok"; fi
 grep -E "ANR in $PKG" $OUT/logcat.txt && ko "ANR tespit edildi" || true
 log ""; log "**Sonuç: $pass başarılı, $fail başarısız**"
+
+# ---- Play Store ekran görüntüleri (açık tema, Türkçe, İstanbul)
+S=$OUT/store_raw; mkdir -p $S
+sshot() { sleep "${2:-5}"; adb exec-out screencap -p > "$S/$1.png"; }
+adb shell cmd statusbar collapse; adb shell input keyevent 127
+start --es ci lang:tr; sleep 2; start --es ci theme:LIGHT; sleep 2; start --es ci "place:41.0082,28.9784,TR,x,İstanbul"; sleep 3
+start; sshot home 6
+start --es open ezan; sshot ezan
+start --es open yasin; sshot yasin 6
+start --es open reciters; sshot reciters
+start --es open qibla; sshot qibla
+start --es open ramazan; sshot ramazan
+start --es open dualar; sshot dualar
+start --es ci theme:DARK; sleep 2; start; sshot dark 6; start --es ci theme:SYSTEM; sleep 2
+adb shell service call notification 1 >/dev/null 2>&1; start --es ci hadis; sleep 1; start --es ci check; sleep 2; adb shell cmd statusbar expand-notifications; sshot notif 3; adb shell cmd statusbar collapse
+pip install -q pillow >/dev/null 2>&1 || pip install -q --break-system-packages pillow >/dev/null 2>&1
+python3 tools/store_graphics.py $S $OUT/store && log "Play Store görselleri üretildi: ci-out/store"
 exit 0

@@ -21,7 +21,16 @@ object Updater {
     private const val REPO = "hknkaradogan-cpu/Ezanvakti"
     const val APK_URL = "https://github.com/$REPO/releases/latest/download/NamazVakti.apk"
 
-    suspend fun check(): UpdateInfo? = withContext(Dispatchers.IO) {
+    /** Google Play'den kurulduysa güncellemeyi Play yapar; GitHub denetimi kapatılır. */
+    fun fromPlay(ctx: Context): Boolean = runCatching {
+        val pm = ctx.packageManager
+        val inst = if (android.os.Build.VERSION.SDK_INT >= 30) pm.getInstallSourceInfo(ctx.packageName).installingPackageName
+                   else @Suppress("DEPRECATION") pm.getInstallerPackageName(ctx.packageName)
+        inst == "com.android.vending"
+    }.getOrDefault(false)
+
+    suspend fun check(ctx: Context): UpdateInfo? = withContext(Dispatchers.IO) {
+        if (fromPlay(ctx)) return@withContext null
         runCatching {
             val c = (URL("https://api.github.com/repos/$REPO/releases/latest").openConnection() as HttpURLConnection).apply {
                 connectTimeout = 15000; readTimeout = 15000

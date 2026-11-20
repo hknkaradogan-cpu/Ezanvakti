@@ -20,11 +20,11 @@ object CiHooks {
             cmd.startsWith("theme:") -> vm.update { it.copy(theme = cmd.removePrefix("theme:")) }
             cmd == "check" -> com.nurvakti.global.alarm.checkNotify(ctx, "dhuhr", "Öğle", java.time.LocalDate.now().toString())
             cmd == "hadis" -> { val h = vm.content.hadisOfDay(); com.nurvakti.global.alarm.bigNotify(ctx, com.nurvakti.global.alarm.Channels.HADIS, 400, "Hadis-i Şerif", h.tr + "\n— " + h.src) }
-            cmd.startsWith("dl:") -> vm.downloadSurah(vm.settings.value?.reciter ?: "alafasy", cmd.removePrefix("dl:").toInt())
+            cmd.startsWith("dl:") -> { val a = cmd.removePrefix("dl:").split(":"); if (a.size == 2) vm.downloadSurah(a[0], a[1].toInt()) else vm.downloadSurah(vm.settings.value?.reciter ?: "sudais", a[0].toInt()) }
             cmd.startsWith("dlezan:") -> vm.downloadEzan(cmd.removePrefix("dlezan:"))
             cmd.startsWith("playr:") -> { val (rid, n) = cmd.removePrefix("playr:").split(":"); vm.content.reciters.firstOrNull { it.id == rid }?.let { vm.player.playSurahs(it, listOf(n.toInt()), n.toInt()) } }
             cmd.startsWith("place:") -> { val a = cmd.removePrefix("place:").split(","); vm.setPlace(com.nurvakti.global.data.Place(a[4], "", a[0].toDouble(), a[1].toDouble(), a[2])) }
-            cmd.startsWith("play:") -> { val n = cmd.removePrefix("play:").toInt(); val r = vm.content.reciters.first { it.id == "alafasy" }; vm.player.playSurahs(r, listOf(n), n) }
+            cmd.startsWith("play:") -> { val n = cmd.removePrefix("play:").toInt(); val r = vm.content.reciters.first { it.id == (vm.settings.value?.reciter ?: "sudais") }; vm.player.playSurahs(r, listOf(n), n) }
             cmd.startsWith("alarm") -> {
                 // Gerçek AlarmManager alarmı: N saniye sonra "Öğle" vakti girmiş gibi tetiklenir (tam ezan, gömülü klasik ses)
                 val parts = cmd.removePrefix("alarm").split(":")

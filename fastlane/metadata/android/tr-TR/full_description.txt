@@ -1,0 +1,38 @@
+Namaz Vakti: Ezan ve Kıble, Türkiye'de ve dünyanın her yerinde namaz vakitlerini doğru hesaplayan, vakit girdiğinde gerçek ezan okuyan, sade ve hesap gerektirmeyen bir namaz uygulamasıdır.
+
+🕌 NAMAZ VAKİTLERİ VE EZAN VAKTİ
+• İmsak, sabah, güneş, öğle, ikindi, akşam ve yatsı; sonraki vakte canlı geri sayım
+• Türkiye'de Diyanet İşleri Başkanlığı yöntemi (resmî vakitlerle test edildi, ±1 dakika)
+• Muslim World League, ISNA, Umm Al-Qura, Mısır, Karaçi, Tahran, JAKIM, Singapur ve diğer yöntemler
+• Hanefi ve Şafii ikindi, yüksek enlem ayarı, dakika düzeltmesi
+• Günlük, haftalık, aylık ve yıllık ezan saatleri; internet olmadan çalışır
+• GPS ile otomatik konum, ülke–il–ilçe seçimi, kayıtlı konumlar ve seyahat modu
+
+🔊 GERÇEK EZAN
+• Her vakit için ayrı ayrı: tam ezan, kısa ezan, bildirim, titreşim, sessiz veya kapalı
+• Klasik, Mekke ve Medine ezanı; önizleme ve kendi ses dosyanızı seçme
+• Vakitten 5, 10, 15 veya 30 dakika önce hatırlatma
+• Ekran kapalıyken ve telefon yeniden başladıktan sonra da çalışır
+
+✅ NAMAZINI KILDIN MI?
+• Vakitten sonra hatırlatma; bildirimdeki "Kıldım ✓" düğmesiyle tek dokunuşta işaretleme
+• Günlük, haftalık, aylık ve yıllık namaz istatistikleri, kaza namazı sayacı
+
+📖 KUR'AN-I KERİM VE YASİN
+• 114 surenin tamamı: Arapça metin, Türkçe meal (Diyanet), İngilizce meal, Latin okunuş
+• Abdurrahman es-Südeys, Mişari el-Afasi, Husari, Minşavi, Abdülbasit ve diğer hafızlar
+• Ekran kapalıyken ve arka planda dinleme; bildirimden ve Bluetooth kulaklıktan kontrol
+• Büyük "Yasin Suresi Dinle" düğmesi; sure ve ayet arama, yer imi, kaldığın yerden devam
+• İndirme merkezi: sureleri ve ezanları indirip internetsiz dinleyin
+
+🧭 KIBLE VE DAHA FAZLASI
+• Telefon sensörleriyle kıble pusulası, Kâbe'ye mesafe, kalibrasyon rehberi, harita üzerinde kıble
+• Kaynaklı dualar, Esmâü'l-Hüsnâ, zikirmatik, günlük hadis bildirimi
+• Ramazan imsakiyesi, iftar sayacı, oruç takibi, dini günler ve kandiller
+• Zekât hesaplama, yakındaki camiler, abdest ve namaz rehberi
+• Türkçe, İngilizce ve Arapça; açık, koyu ve otomatik tema
+
+🔒 GİZLİLİK
+Hesap ve analiz aracı yoktur. Konumunuz ve kişisel kayıtlarınız telefonunuzda kalır; dilediğiniz an dışa aktarabilir veya silebilirsiniz.
+
+By-Hkn

@@ -125,7 +125,7 @@ class AppVm(app: Application) : AndroidViewModel(app) {
     val update = MutableStateFlow<com.nurvakti.global.update.UpdateInfo?>(null)
     val updateProgress = MutableStateFlow(-1)   // -1: inmiyor
     fun checkUpdate(manual: Boolean = false) = viewModelScope.launch {
-        val u = com.nurvakti.global.update.Updater.check()
+        val u = com.nurvakti.global.update.Updater.check(ctx)
         update.value = u
         if (manual && u == null) toast("Uygulama güncel")
     }

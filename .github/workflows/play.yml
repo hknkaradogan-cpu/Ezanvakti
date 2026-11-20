@@ -1,0 +1,67 @@
+name: Play Store'a gönder
+
+# Telefondan: Actions → "Play Store'a gönder" → Run workflow.
+# Gerekli GitHub Secrets: PLAY_SERVICE_ACCOUNT_JSON + SIGNING_KEYSTORE_BASE64, SIGNING_STORE_PASSWORD, SIGNING_KEY_ALIAS, SIGNING_KEY_PASSWORD
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "Kanal: internal (dahili test), closed (kapalı test), production (herkese açık)"
+        default: internal
+        type: choice
+        options: [internal, alpha, production]
+      only_listing:
+        description: "Yalnızca mağaza yazıları ve görselleri güncellensin (yeni sürüm yüklenmesin)"
+        default: false
+        type: boolean
+
+jobs:
+  play:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      VERSION_CODE: ${{ github.run_number }}000
+      VERSION_NAME: 1.1.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Gizli anahtarlar var mı?
+        env:
+          J: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          K: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+        run: |
+          [ -n "$J" ] || { echo "PLAY_SERVICE_ACCOUNT_JSON eksik — docs/PLAY_KURULUM.md 4. adım"; exit 1; }
+          [ -n "$K" ] || { echo "İmza anahtarı (SIGNING_*) eksik — docs/IMZALAMA.md"; exit 1; }
+          echo "$K" | base64 -d > $RUNNER_TEMP/release.jks; echo "SIGNING_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> $GITHUB_ENV
+      - name: Mağaza görsellerini al (emülatör testinin ürettiği)
+        run: |
+          git fetch --depth 1 origin ci-results && git worktree add /tmp/ci origin/ci-results
+          M=fastlane/metadata/android
+          for l in tr-TR en-US; do mkdir -p $M/$l/images/phoneScreenshots; cp /tmp/ci/store/$l/phoneScreenshots/*.png $M/$l/images/phoneScreenshots/ || true
+            cp /tmp/ci/store/featureGraphic.png $M/$l/images/featureGraphic.png || true; cp docs/play-icon-512.png $M/$l/images/icon.png; done
+          mkdir -p $M/ar/images/phoneScreenshots && cp $M/en-US/images/phoneScreenshots/*.png $M/ar/images/phoneScreenshots/ && cp $M/en-US/images/featureGraphic.png $M/ar/images/ && cp docs/play-icon-512.png $M/ar/images/icon.png
+          for l in tr-TR en-US ar; do cp $M/$l/changelogs/default.txt $M/$l/changelogs/${VERSION_CODE}.txt; done
+      - uses: actions/setup-java@v4
+        if: ${{ !inputs.only_listing }}
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v4
+        if: ${{ !inputs.only_listing }}
+        with: { gradle-version: "8.14.3" }
+      - name: AAB derle (release imzalı)
+        if: ${{ !inputs.only_listing }}
+        working-directory: android
+        env:
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: gradle --no-daemon bundleRelease
+      - uses: ruby/setup-ruby@v1
+        with: { ruby-version: "3.3" }
+      - name: Google Play'e yükle (fastlane supply)
+        env:
+          JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          gem install fastlane --no-document -q
+          echo "$JSON" > $RUNNER_TEMP/play.json
+          ARGS="--package_name com.nurvakti.global --json_key $RUNNER_TEMP/play.json --metadata_path fastlane/metadata/android --skip_upload_apk true"
+          if [ "${{ inputs.only_listing }}" = "true" ]; then fastlane supply $ARGS --skip_upload_aab true --skip_upload_changelogs true
+          else fastlane supply $ARGS --aab android/app/build/outputs/bundle/release/app-release.aab --track ${{ inputs.track }} --release_status completed; fi
