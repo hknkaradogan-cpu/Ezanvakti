@@ -100,7 +100,7 @@ start --es open qibla; sshot qibla
 start --es open ramazan; sshot ramazan
 start --es open dualar; sshot dualar
 start --es ci theme:DARK; sleep 2; start; sshot dark 6; start --es ci theme:SYSTEM; sleep 2
-adb shell service call notification 1 >/dev/null 2>&1; start --es ci check; sleep 2; adb shell cmd statusbar expand-notifications; sshot notif 3; adb shell cmd statusbar collapse
+start --es ci clearnotif; sleep 2; start --es ci check; sleep 2; adb shell cmd statusbar expand-notifications; sshot notif 3; adb shell cmd statusbar collapse
 pip install -q pillow >/dev/null 2>&1 || pip install -q --break-system-packages pillow >/dev/null 2>&1
 python3 tools/store_graphics.py $S $OUT/store && log "Play Store görselleri üretildi: ci-out/store"
 exit 0

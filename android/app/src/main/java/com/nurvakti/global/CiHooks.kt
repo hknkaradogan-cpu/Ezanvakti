@@ -18,6 +18,7 @@ object CiHooks {
             cmd == "onboard" -> vm.update { it.copy(onboarded = true) }
             cmd.startsWith("lang:") -> vm.update { it.copy(lang = cmd.removePrefix("lang:")) }
             cmd.startsWith("theme:") -> vm.update { it.copy(theme = cmd.removePrefix("theme:")) }
+            cmd == "clearnotif" -> ctx.getSystemService(android.app.NotificationManager::class.java).cancelAll()
             cmd == "check" -> com.nurvakti.global.alarm.checkNotify(ctx, "dhuhr", "Öğle", java.time.LocalDate.now().toString())
             cmd == "hadis" -> { val h = vm.content.hadisOfDay(); com.nurvakti.global.alarm.bigNotify(ctx, com.nurvakti.global.alarm.Channels.HADIS, 400, "Hadis-i Şerif", h.tr + "\n— " + h.src) }
             cmd.startsWith("dl:") -> { val a = cmd.removePrefix("dl:").split(":"); if (a.size == 2) vm.downloadSurah(a[0], a[1].toInt()) else vm.downloadSurah(vm.settings.value?.reciter ?: "sudais", a[0].toInt()) }
