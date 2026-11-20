@@ -74,6 +74,10 @@ adb shell cmd alarm set-timezone Europe/Berlin 2>/dev/null || adb shell service 
 n3=$(adb shell dumpsys alarm | tr -d '\r' | grep -c "$PKG"); [ "$n3" -gt 2 ] && ok "Saat dilimi değişince alarmlar yeniden kuruldu ($n3)" || ko "Saat dilimi sonrası alarm yok"
 adb shell cmd alarm set-timezone Europe/Istanbul 2>/dev/null
 start; shot after_reboot_home 6
+log ""; log "## Hadis ve \"kıldın mı?\" bildirimleri"
+start --es ci hadis; sleep 2; start --es ci check; sleep 3; adb shell cmd statusbar expand-notifications; shot notif_check_hadis 3
+nc=$(adb shell dumpsys notification --noredact | tr -d '\r' | grep -c "namazını kıldın mı"); [ "$nc" -gt 0 ] && ok "\"Öğle namazını kıldın mı?\" bildirimi (Kıldım ✓ düğmeli) gösterildi" || ko "Kıldın mı bildirimi yok"
+adb shell cmd statusbar collapse
 log ""; log "## Çökme kontrolü"
 adb logcat -d > $OUT/logcat.txt
 if grep -q "FATAL EXCEPTION" $OUT/logcat.txt && grep -A3 "FATAL EXCEPTION" $OUT/logcat.txt | grep -q "$PKG"; then ko "Uygulama çöktü (logcat'te FATAL EXCEPTION)"; grep -A25 "FATAL EXCEPTION" $OUT/logcat.txt | head -60 | sed 's/^/    /' >> $R

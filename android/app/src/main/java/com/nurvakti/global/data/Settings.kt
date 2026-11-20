@@ -49,6 +49,10 @@ enum class AlertMode { FULL, SHORT, NOTIFY, VIBRATE, SILENT, OFF }
     val lastSurah: Int = 1, val lastAyah: Int = 1,
     val zikirGoal: Int = 100,
     val prayerGoal: Int = 5,
+    val checkMinutes: Int = 15,            // namazdan X dk sonra "kıldın mı?" (0 = kapalı)
+    val hadisMode: String = "DAILY",       // OFF | DAILY | HOURLY
+    val hadisHour: Int = 9,                // günlük hadis saati
+
     val manualGold: Double = 0.0, val manualSilver: Double = 0.0, val currency: String = "TRY",
 )
 

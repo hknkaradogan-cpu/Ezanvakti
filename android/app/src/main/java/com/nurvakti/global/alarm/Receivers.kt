@@ -39,7 +39,18 @@ class AlarmReceiver : BroadcastReceiver() {
             val a = s.alerts[prayer]
             val name = PRAYER_TR[prayer] ?: prayer
             val time = Instant.ofEpochMilli(at).atZone(ZoneId.systemDefault()).toLocalTime().toString().take(5)
-            if (pre > 0) {
+            if (pre == AlarmScheduler.CHECK) {
+                val date = Instant.ofEpochMilli(at - s.checkMinutes * 60_000L).atZone(com.nurvakti.global.prayer.Times.zoneOf(s)).toLocalDate().toString()
+                val dao = com.nurvakti.global.data.AppDb.get(ctx).dao()
+                val done = dao.logsNow(date, date).any { it.prayer == prayer && it.done }
+                if (!done) checkNotify(ctx, prayer, name, date)
+            } else if (pre == AlarmScheduler.HADIS) {
+                val c = com.nurvakti.global.data.Content(ctx)
+                val idx = ((at / 3_600_000L) % c.hadis.size).toInt()
+                val h = c.hadis[idx]
+                val en = s.lang == "en"
+                bigNotify(ctx, Channels.HADIS, 400, if (en) "Hadith" else if (s.lang == "ar") "حديث" else "Hadis-i Şerif", (if (en) h.en else h.tr) + "\n— " + h.src)
+            } else if (pre > 0) {
                 notify(ctx, Channels.PRE, 200 + prayer.hashCode() % 50, "$name vaktine $pre dakika", "${s.place.name} · $name $time")
             } else if (a != null) when (a.mode) {
                 AlertMode.FULL, AlertMode.SHORT -> runCatching { AdhanService.start(ctx, prayer, a.mode == AlertMode.SHORT, a.sound, a.customUri) }
@@ -73,5 +84,40 @@ class BootReceiver : BroadcastReceiver() {
         }
         AlarmScheduler.reschedule(ctx)
         DailyWorker.ensure(ctx)
+    }
+}
+
+fun bigNotify(ctx: Context, channel: String, id: Int, title: String, text: String) {
+    if (android.os.Build.VERSION.SDK_INT >= 33 &&
+        ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+    val open = PendingIntent.getActivity(ctx, 0, Intent(ctx, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+    val n = NotificationCompat.Builder(ctx, channel).setSmallIcon(R.drawable.ic_stat_nur).setContentTitle(title).setContentText(text)
+        .setStyle(NotificationCompat.BigTextStyle().bigText(text)).setContentIntent(open).setAutoCancel(true).build()
+    ctx.getSystemService(NotificationManager::class.java).notify(id, n)
+}
+
+/** "Öğle namazını kıldın mı?" — altında "Kıldım ✓" düğmesi: dokununca kaydedilir ve bildirim kapanır. */
+fun checkNotify(ctx: Context, prayer: String, name: String, date: String) {
+    if (android.os.Build.VERSION.SDK_INT >= 33 &&
+        ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+    val id = 500 + PRAYER_TR.keys.indexOf(prayer)
+    fun act(done: Boolean) = PendingIntent.getBroadcast(ctx, id * 10 + if (done) 1 else 2,
+        Intent(ctx, PrayerActionReceiver::class.java).putExtra("prayer", prayer).putExtra("date", date).putExtra("done", done).putExtra("nid", id),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    val open = PendingIntent.getActivity(ctx, 0, Intent(ctx, MainActivity::class.java).putExtra("open", "tracker"), PendingIntent.FLAG_IMMUTABLE)
+    val n = NotificationCompat.Builder(ctx, Channels.CHECK).setSmallIcon(R.drawable.ic_stat_nur)
+        .setContentTitle("$name namazını kıldın mı?").setContentText("Namaz takibine işlemek için dokun.")
+        .addAction(0, "Kıldım ✓", act(true)).addAction(0, "Henüz değil", act(false))
+        .setContentIntent(open).setAutoCancel(true).setCategory(NotificationCompat.CATEGORY_REMINDER).build()
+    ctx.getSystemService(NotificationManager::class.java).notify(id, n)
+}
+
+class PrayerActionReceiver : BroadcastReceiver() {
+    override fun onReceive(ctx: Context, intent: Intent) = goAsync {
+        val prayer = intent.getStringExtra("prayer") ?: return@goAsync
+        val date = intent.getStringExtra("date") ?: return@goAsync
+        if (intent.getBooleanExtra("done", false))
+            com.nurvakti.global.data.AppDb.get(ctx).dao().setLog(com.nurvakti.global.data.PrayerLog(date, prayer, true))
+        ctx.getSystemService(NotificationManager::class.java).cancel(intent.getIntExtra("nid", 0))
     }
 }

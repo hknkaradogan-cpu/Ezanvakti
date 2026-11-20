@@ -57,7 +57,7 @@ class AppVm(app: Application) : AndroidViewModel(app) {
             }
         }
         viewModelScope.launch {
-            settings.distinctUntilChangedBy { it?.let { s -> listOf(s.place, s.method, s.autoMethod, s.asr, s.highLat, s.offsets, s.source, s.alerts) } }.collect { s ->
+            settings.distinctUntilChangedBy { it?.let { s -> listOf(s.place, s.method, s.autoMethod, s.asr, s.highLat, s.offsets, s.source, s.alerts, s.checkMinutes, s.hadisMode, s.hadisHour) } }.collect { s ->
                 if (s != null) {
                     recompute(s)
                     withContext(Dispatchers.Default) { AlarmScheduler.schedule(ctx, s) }

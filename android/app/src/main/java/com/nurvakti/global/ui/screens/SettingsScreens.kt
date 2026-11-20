@@ -252,6 +252,12 @@ import kotlinx.serialization.json.JsonElement
                     TextButton({ AdhanService.preview(ctx, if (a.mode == AlertMode.SHORT) "kisa" else a.sound, a.customUri) }) { Icon(Icons.Filled.PlayArrow, null); Text(t("Önizle")) }
             }
         }
+        item { SectionCard(t("Hatırlatmalar")) {
+            Choice(t("Namazdan sonra \"kıldın mı?\" sorusu"), listOf(0, 10, 15, 30, 45).map { it to if (it == 0) t("Kapalı") else "$it ${t("dakika sonra")}" }, s.checkMinutes) { v -> vm.update { it.copy(checkMinutes = v) } }
+            Text(t("Bildirimdeki \"Kıldım ✓\" düğmesine basınca namaz takibine işlenir ve bildirim kapanır. Zaten işaretlediyseniz soru gelmez."), style = MaterialTheme.typography.bodySmall)
+            Choice(t("Hadis bildirimi"), listOf("OFF" to t("Kapalı"), "DAILY" to t("Günde bir"), "HOURLY" to t("Saatte bir (08:00–22:00)")), s.hadisMode) { v -> vm.update { it.copy(hadisMode = v) } }
+            if (s.hadisMode == "DAILY") Choice(t("Saat"), (5..23).map { it to "%02d:00".format(it) }, s.hadisHour) { v -> vm.update { it.copy(hadisHour = v) } }
+        } }
         item { Text(t("Ezan sesleri"), style = MaterialTheme.typography.titleLarge) }
         items(vm.content.ezans) { e ->
             val f = vm.content.ezanFile(e)

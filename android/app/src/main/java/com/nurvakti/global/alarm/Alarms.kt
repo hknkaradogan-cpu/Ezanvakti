@@ -13,6 +13,7 @@ import com.nurvakti.global.MainActivity
 import com.nurvakti.global.data.AlertMode
 import com.nurvakti.global.data.Settings
 import com.nurvakti.global.data.SettingsStore
+import com.nurvakti.global.prayer.PrayerCalc
 import com.nurvakti.global.prayer.Times
 import java.time.ZonedDateTime
 
@@ -23,6 +24,8 @@ object Channels {
     const val SILENT = "vakit_sessiz_v1"
     const val PRE = "vakit_oncesi_v1"
     const val DOWNLOAD = "indirme_v1"
+    const val CHECK = "namaz_kontrol_v1"
+    const val HADIS = "hadis_v1"
     fun create(ctx: Context) {
         val nm = ctx.getSystemService(NotificationManager::class.java)
         val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
@@ -35,6 +38,8 @@ object Channels {
         nm.createNotificationChannel(NotificationChannel(SILENT, "Vakit bildirimi (sessiz)", NotificationManager.IMPORTANCE_DEFAULT).apply { setSound(null, null); enableVibration(false) })
         nm.createNotificationChannel(NotificationChannel(PRE, "Vakit öncesi hatırlatma", NotificationManager.IMPORTANCE_HIGH).apply { setSound(sound, attrs) })
         nm.createNotificationChannel(NotificationChannel(DOWNLOAD, "İndirmeler", NotificationManager.IMPORTANCE_LOW))
+        nm.createNotificationChannel(NotificationChannel(CHECK, "Namaz kıldın mı? hatırlatması", NotificationManager.IMPORTANCE_DEFAULT))
+        nm.createNotificationChannel(NotificationChannel(HADIS, "Günün hadisi", NotificationManager.IMPORTANCE_DEFAULT).apply { setSound(null, null) })
     }
 }
 
@@ -44,7 +49,9 @@ val PRAYER_TR = mapOf("imsak" to "İmsak", "fajr" to "Sabah", "sunrise" to "Gün
  *  her alarm çaldığında ve günlük işçide yeniden hesaplanır. Aynı istek kodu kullanıldığı için alarm çoğalmaz. */
 object AlarmScheduler {
     const val ACTION = "com.nurvakti.global.ALARM"
-    private const val MAX_SLOTS = 40
+    private const val MAX_SLOTS = 80
+    const val CHECK = -1   // namaz sonrası "kıldın mı?"
+    const val HADIS = -2   // hadis bildirimi
 
     fun canExact(ctx: Context): Boolean {
         val am = ctx.getSystemService(AlarmManager::class.java)
@@ -67,6 +74,13 @@ object AlarmScheduler {
                 if (a.mode != AlertMode.OFF) res += Ev(t, k, 0)
                 if (a.preMinutes > 0) res += Ev(t.minusMinutes(a.preMinutes.toLong()), k, a.preMinutes)
             }
+            if (s.checkMinutes > 0) for (k in PrayerCalc.FIVE) d.times[k]?.let { res += Ev(it.plusMinutes(s.checkMinutes.toLong()), k, CHECK) }
+        }
+        // Hadis bildirimleri (önümüzdeki 24 saat)
+        val start = now.withMinute(0).withSecond(0).withNano(0)
+        when (s.hadisMode) {
+            "DAILY" -> for (i in 0..1) res += Ev(now.toLocalDate().plusDays(i.toLong()).atTime(s.hadisHour, 0).atZone(now.zone), "hadis", HADIS)
+            "HOURLY" -> for (h in 1..24) { val t = start.plusHours(h.toLong()); if (t.hour in 8..22) res += Ev(t, "hadis", HADIS) }
         }
         return res.filter { it.at.isAfter(now) }.sortedBy { it.at }.take(MAX_SLOTS)
     }

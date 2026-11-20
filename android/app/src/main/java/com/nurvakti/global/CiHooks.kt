@@ -18,6 +18,8 @@ object CiHooks {
             cmd == "onboard" -> vm.update { it.copy(onboarded = true) }
             cmd.startsWith("lang:") -> vm.update { it.copy(lang = cmd.removePrefix("lang:")) }
             cmd.startsWith("theme:") -> vm.update { it.copy(theme = cmd.removePrefix("theme:")) }
+            cmd == "check" -> com.nurvakti.global.alarm.checkNotify(ctx, "dhuhr", "Öğle", java.time.LocalDate.now().toString())
+            cmd == "hadis" -> { val h = vm.content.hadisOfDay(); com.nurvakti.global.alarm.bigNotify(ctx, com.nurvakti.global.alarm.Channels.HADIS, 400, "Hadis-i Şerif", h.tr + "\n— " + h.src) }
             cmd.startsWith("dl:") -> vm.downloadSurah(vm.settings.value?.reciter ?: "alafasy", cmd.removePrefix("dl:").toInt())
             cmd.startsWith("dlezan:") -> vm.downloadEzan(cmd.removePrefix("dlezan:"))
             cmd.startsWith("playr:") -> { val (rid, n) = cmd.removePrefix("playr:").split(":"); vm.content.reciters.firstOrNull { it.id == rid }?.let { vm.player.playSurahs(it, listOf(n.toInt()), n.toInt()) } }
