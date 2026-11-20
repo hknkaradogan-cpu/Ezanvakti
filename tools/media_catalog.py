@@ -27,9 +27,14 @@ def head(url):
     except Exception:
         return False, 0
 verify = '--verify' in sys.argv
-KEYS = {'alafasy': ['alafasy'], 'husary': ['husary'], 'minshawi': ['minshawi'], 'abdulbasit': ['abdulbasit'], 'sudais': ['sudais'],
-        'shuraim': ['shuraim', 'shuraym'], 'ajamy': ['ajamy', 'ajmi'], 'maher': ['maher', 'muaiqly'], 'hudhaify': ['hudhaify', 'huthayfi'],
-        'ayyoub': ['ayyoub', 'ayoub'], 'jibreel': ['jibreel', 'jibril'], 'shaatree': ['shaatree', 'shatri'], 'rifai': ['rifai']}
+# Her hafız için ad eşleştirme: alternatiflerden biri; '+' ile ayrılan parçaların hepsi geçmeli
+KEYS = {'alafasy': ['alafasy', 'afasy'], 'husary': ['husary', 'hussary', 'husari', 'hosary'], 'minshawi': ['minshawi'], 'abdulbasit': ['abdulbasit', 'abdul+basit'],
+        'sudais': ['sudais', 'sudaes', 'sudays'], 'shuraim': ['shuraim', 'shuraym'], 'ajamy': ['ajamy', 'ajmy', 'ajmi', 'ajami'], 'maher': ['muaiqly', 'meaqli', 'maher+mu'],
+        'hudhaify': ['hudhaify', 'huthaifi', 'hudhaifi', 'huthaify', 'hothaifi'], 'ayyoub': ['ayyoub', 'ayyub', 'ayoub'], 'jibreel': ['jibreel', 'jibril'],
+        'shaatree': ['shaatree', 'shatri'], 'rifai': ['hani+rifai']}
+def name_match(nm, alts):
+    nm = nm.lower().replace(' ', '').replace('-', '')
+    return any(all(part in nm for part in alt.split('+')) for alt in alts)
 INFO = {}
 if verify:
     # CDN'in resmî listesi: hangi kimlik (edition) hangi bit hızında sure dosyası sunuyor
@@ -56,8 +61,7 @@ if verify:
         rs = json.loads(urllib.request.urlopen(urllib.request.Request('https://www.mp3quran.net/api/v3/reciters?language=eng', headers={'User-Agent': 'NurVaktiGlobal-CI/1.0'}), timeout=30).read().decode())['reciters']
         for rid, keys in KEYS.items():
             for r in rs:
-                nm = r['name'].lower().replace(' ', '')
-                if any(k in nm for k in keys):
+                if name_match(r['name'], keys):
                     ms = [m for m in r['moshaf'] if int(m.get('surah_total', 0)) >= 100 and 'mujawwad' not in m['name'].lower()]
                     ms.sort(key=lambda m: (-int(m['surah_total']), 'murattal' not in m['name'].lower()))
                     if ms: MP3Q[rid] = {'server': ms[0]['server'].rstrip('/') + '/', 'name': r['name']}; break
@@ -67,7 +71,7 @@ if verify:
 def candidates(rid, base):
     out = list(base)
     for ident, brs in INFO.items():
-        if any(k in ident for k in KEYS.get(rid, [])) and 'mujawwad' not in ident:
+        if name_match(ident, KEYS.get(rid, [])) and 'mujawwad' not in ident:
             for br in sorted(brs, key=lambda b: (b != 128, -b)): out.append((ident, br))
     seen = set(); res = []
     for c in out:
@@ -101,6 +105,7 @@ for rid, tr, en, info, cands in RECITERS:
         sizes = {str(n): s for n, ok, s in res if ok}
         if not avail: print('YOK:', rid); continue
         entry.update({'edition': ed, 'bitrate': br, 'url': tmpl, 'surahs': avail, 'sizes': sizes, 'verified': True, 'source': src})
+        if ed.startswith('mp3quran:'): entry['info'] += ' · kayıt: ' + ed.split(':', 1)[1]
         print(rid, ed, br, len(avail), '/114', src)
     else:
         old = prev.get(rid)

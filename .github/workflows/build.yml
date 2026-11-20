@@ -59,7 +59,7 @@ jobs:
           SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
           SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         working-directory: android
-        run: gradle --no-daemon testDebugUnitTest assembleRelease assembleDebug
+        run: gradle --no-daemon testDebugUnitTest assembleRelease assembleDebug bundleRelease
 
       - name: Test raporlarını topla
         if: always()
@@ -73,6 +73,7 @@ jobs:
           mkdir -p out
           cp android/app/build/outputs/apk/release/app-release.apk out/NurVakti-${VERSION_NAME}.apk
           cp android/app/build/outputs/apk/debug/app-debug.apk out/NurVakti-${VERSION_NAME}-test.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab out/NurVakti-${VERSION_NAME}-playstore.aab
           ls -la out
           "$ANDROID_HOME"/build-tools/$(ls "$ANDROID_HOME"/build-tools | sort -V | tail -1)/apksigner verify --print-certs out/NurVakti-${VERSION_NAME}.apk | head -3
 
@@ -119,8 +120,11 @@ jobs:
             NAMAZ VAKTİ: EZAN VE KIBLE — NUR VAKTİ GLOBAL ${{ env.VERSION_NAME }}
             - **NurVakti-${{ env.VERSION_NAME }}.apk**: telefona kurulacak sürüm (küçültülmüş release derlemesi)
             - **NurVakti-${{ env.VERSION_NAME }}-test.apk**: hata ayıklama derlemesi
+            - **NurVakti-${{ env.VERSION_NAME }}-playstore.aab**: Google Play Console'a yüklenecek paket (GitHub Secrets'taki imza anahtarı eklendikten sonra kullanın)
             iPhone ve bilgisayar: https://hknkaradogan-cpu.github.io/Ezanvakti/
-          files: out/*.apk
+          files: |
+            out/*.apk
+            out/*.aab
           make_latest: true
 
       - name: Test sonucu
