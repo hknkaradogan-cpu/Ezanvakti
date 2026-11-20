@@ -44,7 +44,7 @@ enum class AlertMode { FULL, SHORT, NOTIFY, VIBRATE, SILENT, OFF }
     val quranFont: Int = 26,
     val translation: String = "tr",        // tr | en | none
     val showTranslit: Boolean = false,
-    val reciter: String = "alafasy",
+    val reciter: String = "sudais",
     val hijriAdjust: Int = 0,
     val lastSurah: Int = 1, val lastAyah: Int = 1,
     val zikirGoal: Int = 100,

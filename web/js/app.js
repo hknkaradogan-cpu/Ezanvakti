@@ -8,7 +8,7 @@ const DEF = {
   method: 'DIYANET', autoMethod: true, asr: 'STANDARD', highLat: 'ANGLE', offsets: {}, hijriAdjust: 0,
   alerts: { fajr: { mode: 'FULL', sound: 'klasik', pre: 0 }, dhuhr: { mode: 'FULL', sound: 'klasik', pre: 0 }, asr: { mode: 'FULL', sound: 'klasik', pre: 0 },
     maghrib: { mode: 'FULL', sound: 'klasik', pre: 0 }, isha: { mode: 'FULL', sound: 'klasik', pre: 0 }, imsak: { mode: 'OFF', sound: 'klasik', pre: 0 }, sunrise: { mode: 'OFF', sound: 'klasik', pre: 0 } },
-  reciter: 'alafasy', translation: 'tr', translit: false, font: 26, last: [1, 1], zikirGoal: 100, prayerGoal: 5, gold: 0, silver: 0, cur: 'TRY',
+  reciter: 'sudais', translation: 'tr', translit: false, font: 26, last: [1, 1], zikirGoal: 100, prayerGoal: 5, gold: 0, silver: 0, cur: 'TRY',
 };
 const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch { return d; } };
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
