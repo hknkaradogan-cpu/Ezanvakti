@@ -14,7 +14,7 @@ adb shell settings put system screen_off_timeout 1800000
 adb logcat -c
 start --es ci onboard; sleep 6
 start; shot 00_home 6
-for r in times quran "reader/1?a=1" yasin reciters qibla menu settings location ezan downloads dualar zikir esma ramazan takvim tracker zekat camiler rehber about battery bookmarks player; do
+for r in times quran "reader/1?a=1" yasin reciters qibla menu settings location ezan downloads dualar zikir esma ramazan takvim tracker zekat rehber about battery bookmarks player; do
   start --es open "$r"; shot "$(echo "$r" | tr '/?=' '___')"
 done
 for l in en ar; do start --es ci "lang:$l"; sleep 3; start; shot "lang_${l}_home"; start --es open quran; shot "lang_${l}_quran"; done
@@ -51,7 +51,7 @@ for rr in husary minshawi sudais; do start --es ci "playr:$rr:112"; sleep 14
 start --es open reciters; shot reciters_list 4
 log ""; log "## Konum değişikliği"
 start --es ci "place:51.5074,-0.1278,GB,x,Londra"; sleep 4; start; shot place_london 5; start --es open times; shot times_london 4
-start --es ci "place:41.0082,28.9784,TR,x,İstanbul"; sleep 3
+start --es ci "place:41.0082,28.9784,TR,x,İstanbul"; sleep 3; start --es open camiler; shot camiler 20
 ok "Konum Londra'ya değiştirildi (ekran görüntüsü: place_london.png, times_london.png)"
 
 log ""; log "## Gerçek ezan alarmı (AlarmManager, ekran kapalı)"

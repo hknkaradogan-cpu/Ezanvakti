@@ -166,15 +166,26 @@ data class Mosque(val name: String, val lat: Double, val lng: Double, val km: Do
     }
 }
 
+private val OVERPASS = listOf("https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter", "https://overpass.private.coffee/api/interpreter")
 private fun overpass(lat: Double, lng: Double, r: Int): List<Mosque> {
     val q = "[out:json][timeout:25];(node[\"amenity\"=\"place_of_worship\"][\"religion\"=\"muslim\"](around:$r,$lat,$lng);way[\"amenity\"=\"place_of_worship\"][\"religion\"=\"muslim\"](around:$r,$lat,$lng););out center 80;"
-    val c = (URL("https://overpass-api.de/api/interpreter").openConnection() as HttpURLConnection).apply {
-        requestMethod = "POST"; doOutput = true; connectTimeout = 20000; readTimeout = 30000
+    var last: Exception? = null
+    for (server in OVERPASS) {
+        try { return parseOverpass(post(server, q), lat, lng) } catch (e: Exception) { last = e }
+    }
+    throw last ?: Exception("Overpass")
+}
+private fun post(server: String, q: String): String {
+    val c = (URL(server).openConnection() as HttpURLConnection).apply {
+        requestMethod = "POST"; doOutput = true; connectTimeout = 15000; readTimeout = 30000
         setRequestProperty("User-Agent", "NurVaktiGlobal/1.0"); setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
     }
     c.outputStream.use { it.write(("data=" + URLEncoder.encode(q, "UTF-8")).toByteArray()) }
     if (c.responseCode != 200) throw Exception("Overpass HTTP ${c.responseCode}")
-    val o = Json.parseToJsonElement(c.inputStream.bufferedReader().readText()).jsonObject
+    return c.inputStream.bufferedReader().readText()
+}
+private fun parseOverpass(body: String, lat: Double, lng: Double): List<Mosque> {
+    val o = Json.parseToJsonElement(body).jsonObject
     return (o["elements"] as JsonArray).mapNotNull { e ->
         val eo = e.jsonObject
         val la = eo["lat"]?.jsonPrimitive?.double ?: eo["center"]?.jsonObject?.get("lat")?.jsonPrimitive?.double ?: return@mapNotNull null

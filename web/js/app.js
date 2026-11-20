@@ -581,9 +581,12 @@ routes.camiler = async (rad = '3000') => {
     const box = $('#mres'); if (!box) return;
     try {
       const q = `[out:json][timeout:25];(node["amenity"="place_of_worship"]["religion"="muslim"](around:${rad},${S.place.lat},${S.place.lng});way["amenity"="place_of_worship"]["religion"="muslim"](around:${rad},${S.place.lat},${S.place.lng}););out center 80;`;
-      const r = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
-      if (!r.ok) throw new Error('Overpass HTTP ' + r.status);
-      const els = (await r.json()).elements.map(e => ({ name: e.tags?.['name:tr'] || e.tags?.name || t('Cami / Mescit'), lat: e.lat ?? e.center?.lat, lng: e.lon ?? e.center?.lon })).filter(e => e.lat)
+      let js = null, err = null;
+      for (const sv of ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://overpass.private.coffee/api/interpreter']) {
+        try { const r = await fetch(sv, { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }); if (!r.ok) throw new Error('Overpass HTTP ' + r.status); js = await r.json(); break; } catch (e) { err = e; }
+      }
+      if (!js) throw err;
+      const els = js.elements.map(e => ({ name: e.tags?.['name:tr'] || e.tags?.name || t('Cami / Mescit'), lat: e.lat ?? e.center?.lat, lng: e.lon ?? e.center?.lon })).filter(e => e.lat)
         .map(e => ({ ...e, km: distanceKm(S.place.lat, S.place.lng, e.lat, e.lng) })).sort((a, b) => a.km - b.km);
       box.innerHTML = (els.length ? '' : `<p>${t("Bu yarıçapta OpenStreetMap'te kayıtlı cami bulunamadı. Yarıçapı büyütün.")}</p>`) + els.map(e => `<div class="item"><div class="grow"><b>${esc(e.name)}</b><div class="mut">${e.km.toFixed(2)} km</div></div>
         <a class="btn o s" target="_blank" rel="noopener" href="https://www.openstreetmap.org/directions?route=${S.place.lat},${S.place.lng};${e.lat},${e.lng}">🧭 ${t('Yol tarifi')}</a></div>`).join('') + `<p class="mut">© OpenStreetMap katkıcıları (ODbL) · Overpass API</p>`;
