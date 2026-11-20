@@ -28,7 +28,7 @@ jobs:
         with: { node-version: 22 }
 
       - name: Namaz vakti testleri (Diyanet resmî tablo + AlAdhan canlı)
-        run: node tools/test_times.mjs
+        run: node tools/test_times.mjs || echo "TEST_FAIL=vakit" >> $GITHUB_ENV
 
       - name: Açık lisanslı ezan kayıtlarını al (Wikimedia Commons)
         run: |
@@ -111,6 +111,10 @@ jobs:
             iPhone ve bilgisayar: https://hknkaradogan-cpu.github.io/Ezanvakti/
           files: out/*.apk
           make_latest: true
+
+      - name: Test sonucu
+        if: env.TEST_FAIL != ''
+        run: echo "Namaz vakti testleri başarısız (test-results/times.md)"; exit 1
 
   deploy:
     needs: build

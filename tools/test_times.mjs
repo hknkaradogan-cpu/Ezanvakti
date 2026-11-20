@@ -23,7 +23,7 @@ const cities = [
   ['New York', 40.7128, -74.006, 'America/New_York', 'ISNA'],
 ];
 const tzOffset = (tz, date) => { const s = new Date(date).toLocaleString('en-US', { timeZone: tz, timeZoneName: 'longOffset' }); const m = s.match(/GMT([+-]\d{2}):?(\d{2})?/); return m ? (+m[1] + Math.sign(+m[1] || 1) * (+(m[2] || 0)) / 60) : 0; };
-out.push('\n## 2. AlAdhan API ile canlı karşılaştırma\n', 'Tolerans ±2 dk. Not: AlAdhan'ın Diyanet yöntemi (13) Diyanet'in temkin sürelerini birebir uygulamaz; Diyanet doğruluğu 1. bölümde resmî tabloyla ölçülür, buradaki Diyanet satırları bilgi amaçlıdır.\n',
+out.push('\n## 2. AlAdhan API ile canlı karşılaştırma\n', `Tolerans ±2 dk. Not: AlAdhan'ın Diyanet yöntemi (13) Diyanet'in temkin sürelerini birebir uygulamaz; Diyanet doğruluğu 1. bölümde resmî tabloyla ölçülür, buradaki Diyanet satırları bilgi amaçlıdır.\n`,
   '| Şehir | Yöntem | Tarih | Uygulama (imsak güneş öğle ikindi akşam yatsı) | AlAdhan | En büyük fark | Sonuç |', '|---|---|---|---|---|---|---|');
 const today = new Date(); const ds = `${String(today.getUTCDate()).padStart(2, '0')}-${String(today.getUTCMonth() + 1).padStart(2, '0')}-${today.getUTCFullYear()}`;
 let aladhanOk = 0;
