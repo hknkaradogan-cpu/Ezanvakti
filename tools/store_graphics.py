@@ -81,7 +81,7 @@ if __name__ == '__main__':
             src = f'{RAW}/{key}.png'
             if not os.path.exists(src): print('yok:', src); continue
             i += 1
-            screenshot(src, tt if lang == 'tr-TR' else et, ts if lang == 'tr-TR' else es, f'{OUT}/{lang}/phoneScreenshots/{i}.png', crop=.52 if key == 'notif' else None)
+            screenshot(src, tt if lang == 'tr-TR' else et, ts if lang == 'tr-TR' else es, f'{OUT}/{lang}/phoneScreenshots/{i}.png', crop=.40 if key == 'notif' else None)
         print(lang, i, 'ekran görüntüsü')
     icon = os.path.join(R, '..', 'docs', 'play-icon-512.png')
     feature(icon, f'{OUT}/featureGraphic.png')

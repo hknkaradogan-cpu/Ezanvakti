@@ -89,6 +89,8 @@ log ""; log "**Sonuç: $pass başarılı, $fail başarısız**"
 S=$OUT/store_raw; mkdir -p $S
 sshot() { sleep "${2:-5}"; adb exec-out screencap -p > "$S/$1.png"; }
 adb shell cmd statusbar collapse; adb shell input keyevent 127
+adb shell appops set $PKG SCHEDULE_EXACT_ALARM allow; adb shell pm grant $PKG android.permission.POST_NOTIFICATIONS; adb shell dumpsys deviceidle whitelist +$PKG >/dev/null
+adb emu sensor set acceleration 0:0.2:9.8 >/dev/null 2>&1; adb emu sensor set magnetic-field 22:5:-40 >/dev/null 2>&1
 start --es ci lang:tr; sleep 2; start --es ci theme:LIGHT; sleep 2; start --es ci "place:41.0082,28.9784,TR,x,İstanbul"; sleep 3
 start; sshot home 6
 start --es open ezan; sshot ezan
@@ -98,7 +100,7 @@ start --es open qibla; sshot qibla
 start --es open ramazan; sshot ramazan
 start --es open dualar; sshot dualar
 start --es ci theme:DARK; sleep 2; start; sshot dark 6; start --es ci theme:SYSTEM; sleep 2
-adb shell service call notification 1 >/dev/null 2>&1; start --es ci hadis; sleep 1; start --es ci check; sleep 2; adb shell cmd statusbar expand-notifications; sshot notif 3; adb shell cmd statusbar collapse
+adb shell service call notification 1 >/dev/null 2>&1; start --es ci check; sleep 2; adb shell cmd statusbar expand-notifications; sshot notif 3; adb shell cmd statusbar collapse
 pip install -q pillow >/dev/null 2>&1 || pip install -q --break-system-packages pillow >/dev/null 2>&1
 python3 tools/store_graphics.py $S $OUT/store && log "Play Store görselleri üretildi: ci-out/store"
 exit 0
