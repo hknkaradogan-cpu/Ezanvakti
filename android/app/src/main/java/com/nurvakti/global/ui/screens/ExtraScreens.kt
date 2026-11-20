@@ -470,6 +470,7 @@ private fun fetchMetal(cur: String): Triple<Double, Double, String> {
             SectionCard("NAMAZ VAKTİ: EZAN VE KIBLE") {
                 Text("Namaz Vakti: Ezan ve Kıble · ${com.nurvakti.global.BuildConfig.VERSION_NAME}"); Text(t("Her vakitte, her yerde, huzurla."))
                 Text("© 2026 By-Hkn — Tüm hakları saklıdır.", fontWeight = FontWeight.Bold, color = Brand.Gold)
+                Button({ vm.checkUpdate(manual = true) }, Modifier.fillMaxWidth()) { Icon(Icons.Filled.SystemUpdate, null); Spacer(Modifier.width(8.dp)); Text(t("Güncellemeleri denetle")) }
                 Text(t("Reklamsız, hesap gerektirmeyen, verileri yalnızca telefonda saklayan namaz vakti uygulaması."), style = MaterialTheme.typography.bodySmall)
             }
             SectionCard(t("Veri kaynakları")) {

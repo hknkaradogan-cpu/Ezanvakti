@@ -150,5 +150,7 @@ T = {
 "Bu hafızın bu sure kaydı mevcut değil": ("This reciter has no recording of this surah", "لا يتوفر تسجيل لهذه السورة لدى هذا القارئ"), "Pusula izni verilmedi": ("Compass permission denied", "لم يُمنح إذن البوصلة"),
 "Tarayıcı sesi engelledi. Ezanın çalabilmesi için sayfaya bir kez dokunun.": ("The browser blocked audio. Tap the page once so the adhan can play.", "حظر المتصفح الصوت. اضغط على الصفحة مرة ليعمل الأذان."),
 "Ses açılamadı. İnternet bağlantınızı veya indirmeyi kontrol edin.": ("Audio could not be opened. Check your internet connection or the download.", "تعذر تشغيل الصوت. تحقق من الإنترنت أو من التنزيل."), "Bu cihaz konum desteklemiyor": ("This device does not support location", "هذا الجهاز لا يدعم تحديد الموقع"),
-"Sunucu": ("Server", "الخادم"), "Uyarı": ("Warning", "تنبيه"),
+"Sunucu": ("Server", "الخادم"), "Yeni sürüm hazır": ("New version available", "يتوفر إصدار جديد"), "Güncelle": ("Update", "تحديث"), "Daha sonra": ("Later", "لاحقاً"),
+"Güncellemeleri denetle": ("Check for updates", "التحقق من التحديثات"), "Uygulama güncel": ("App is up to date", "التطبيق محدّث"),
+"Uygulamanın yeni sürümü yayınlandı. Güncellemek için dokunun; verileriniz ve ayarlarınız korunur.": ("A new version of the app has been released. Tap to update; your data and settings are kept.", "صدر إصدار جديد من التطبيق. اضغط للتحديث؛ ستبقى بياناتك وإعداداتك محفوظة."), "Uyarı": ("Warning", "تنبيه"),
 }

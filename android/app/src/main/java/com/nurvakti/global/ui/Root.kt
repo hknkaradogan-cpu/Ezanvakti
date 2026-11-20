@@ -48,6 +48,17 @@ private val TABS = listOf(Tab("home", "Ana sayfa", Icons.Filled.Home), Tab("time
     val cur = s
     if (cur == null) { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }; return }
     if (!cur.onboarded) { Onboarding(vm); return }
+    LaunchedEffect(Unit) { vm.checkUpdate() }
+    val upd by vm.update.collectAsState()
+    val prog by vm.updateProgress.collectAsState()
+    upd?.let { u ->
+        androidx.compose.material3.AlertDialog(onDismissRequest = { if (prog < 0) vm.update.value = null },
+            title = { Text(t("Yeni sürüm hazır") + " · " + u.version) },
+            text = { if (prog >= 0) androidx.compose.foundation.layout.Column { Text(t("İndiriliyor") + " %$prog"); androidx.compose.material3.LinearProgressIndicator({ prog / 100f }) }
+                     else Text(t("Uygulamanın yeni sürümü yayınlandı. Güncellemek için dokunun; verileriniz ve ayarlarınız korunur.")) },
+            confirmButton = { androidx.compose.material3.TextButton({ vm.startUpdate() }, enabled = prog < 0) { Text(t("Güncelle")) } },
+            dismissButton = { androidx.compose.material3.TextButton({ vm.update.value = null }, enabled = prog < 0) { Text(t("Daha sonra")) } })
+    }
     val entry by nav.currentBackStackEntryAsState()
     val route = entry?.destination?.route
     Scaffold(

@@ -120,5 +120,20 @@ class AppVm(app: Application) : AndroidViewModel(app) {
     }
 
     fun today(): String = now.value.toLocalDate().toString()
+
+    // ---------- uygulama içi güncelleme
+    val update = MutableStateFlow<com.nurvakti.global.update.UpdateInfo?>(null)
+    val updateProgress = MutableStateFlow(-1)   // -1: inmiyor
+    fun checkUpdate(manual: Boolean = false) = viewModelScope.launch {
+        val u = com.nurvakti.global.update.Updater.check()
+        update.value = u
+        if (manual && u == null) toast("Uygulama güncel")
+    }
+    fun startUpdate() = viewModelScope.launch {
+        updateProgress.value = 0
+        runCatching { com.nurvakti.global.update.Updater.download(ctx) { updateProgress.value = it } }
+            .onSuccess { updateProgress.value = -1; update.value = null; runCatching { com.nurvakti.global.update.Updater.install(ctx, it) }.onFailure { com.nurvakti.global.update.Updater.openInBrowser(ctx) } }
+            .onFailure { updateProgress.value = -1; toast("Güncelleme indirilemedi: ${it.message}"); com.nurvakti.global.update.Updater.openInBrowser(ctx) }
+    }
 }
 
