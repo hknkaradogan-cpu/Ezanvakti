@@ -74,7 +74,7 @@ import kotlinx.serialization.json.JsonElement
         if (uri != null) scope.launch {
             val d = vm.dao
             val obj = buildJsonObject {
-                put("app", "NUR VAKTİ GLOBAL"); put("exported", java.time.ZonedDateTime.now().toString())
+                put("app", "NAMAZ VAKTİ: EZAN VE KIBLE"); put("exported", java.time.ZonedDateTime.now().toString())
                 put("settings", SettingsJson.encodeToJsonElement(com.nurvakti.global.data.Settings.serializer(), s))
                 put("prayerLog", SettingsJson.encodeToJsonElement(ListSerializer(com.nurvakti.global.data.PrayerLog.serializer()), d.allLogs()))
                 put("kaza", SettingsJson.encodeToJsonElement(ListSerializer(com.nurvakti.global.data.Kaza.serializer()), d.allKaza()))
@@ -296,7 +296,7 @@ import kotlinx.serialization.json.JsonElement
                 OutlinedButton({ ctx.startActivity(Intent(AndroidSettings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${ctx.packageName}"))) }) { Text(t("Uygulama ayarlarını aç")) }
             }
             SectionCard(t("Üretici kısıtlamaları")) {
-                Text(t("• Xiaomi / Redmi / POCO (MIUI, HyperOS): Ayarlar > Uygulamalar > Nur Vakti > Otomatik başlatma: AÇIK; Pil tasarrufu: Kısıtlama yok.\n• Huawei / Honor: Ayarlar > Pil > Uygulama başlatma > Nur Vakti: Manuel yönet, üç seçeneği de açın.\n• Samsung: Ayarlar > Pil > Arka plan kullanım sınırları > 'Hiç uyumayan uygulamalar' listesine ekleyin.\n• Oppo / Realme / OnePlus (ColorOS): Ayarlar > Pil > Nur Vakti > Arka plan etkinliğine izin ver; Otomatik başlatma: AÇIK.\n• Vivo: Ayarlar > Pil > Arka planda yüksek güç tüketimi: izin ver.\nBu ayarlar yapılmazsa bazı telefonlarda ezan gecikebilir veya hiç çalmayabilir."))
+                Text(t("• Xiaomi / Redmi / POCO (MIUI, HyperOS): Ayarlar > Uygulamalar > Namaz Vakti > Otomatik başlatma: AÇIK; Pil tasarrufu: Kısıtlama yok.\n• Huawei / Honor: Ayarlar > Pil > Uygulama başlatma > Namaz Vakti: Manuel yönet, üç seçeneği de açın.\n• Samsung: Ayarlar > Pil > Arka plan kullanım sınırları > 'Hiç uyumayan uygulamalar' listesine ekleyin.\n• Oppo / Realme / OnePlus (ColorOS): Ayarlar > Pil > Namaz Vakti > Arka plan etkinliğine izin ver; Otomatik başlatma: AÇIK.\n• Vivo: Ayarlar > Pil > Arka planda yüksek güç tüketimi: izin ver.\nBu ayarlar yapılmazsa bazı telefonlarda ezan gecikebilir veya hiç çalmayabilir."))
                 Text(t("Daha fazla bilgi: dontkillmyapp.com"), style = MaterialTheme.typography.bodySmall)
             }
             SectionCard(t("Ses")) { Text(t("Ezan, telefonun ALARM ses seviyesini kullanır. Sessiz modda da çalması için alarm sesini açık tutun. Bildirimdeki 'Durdur' düğmesiyle ezanı istediğiniz an kesebilirsiniz.")) }

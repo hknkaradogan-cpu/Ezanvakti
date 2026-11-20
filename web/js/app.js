@@ -194,7 +194,7 @@ const dayIdx = () => Math.floor(Date.now() / 86400000);
 const dfmt = (o, opt = { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' }) => new Date(Date.UTC(o.y, o.m - 1, o.d, 12)).toLocaleDateString(locale(), { ...opt, timeZone: 'UTC' });
 
 routes.onboard = async () => `<div class="view" style="padding-top:40px">
-  <div class="hero center"><img src="icons/icon-192.png" width="96" height="96" alt="" style="border-radius:24px"><div class="brand" style="font-size:20px;margin-top:8px">NUR VAKTİ GLOBAL</div><div>${t('Her vakitte, her yerde, huzurla.')}</div></div>
+  <div class="hero center"><img src="icons/icon-192.png" width="96" height="96" alt="" style="border-radius:24px"><div class="brand" style="font-size:20px;margin-top:8px">NAMAZ VAKTİ · EZAN VE KIBLE</div><div>${t('Her vakitte, her yerde, huzurla.')}</div></div>
   <div class="card"><h3>${t('Dil / Language / اللغة')}</h3><div class="chips">${[['tr', 'Türkçe'], ['en', 'English'], ['ar', 'العربية']].map(([c, n]) => `<button class="chip ${S.lang === c ? 'on' : ''}" data-a="lang" data-v="${c}">${n}</button>`).join('')}</div>
   <h3>${t('Konum izni')}</h3><p>${t('Namaz vakitlerini ve kıble yönünü bulunduğunuz yere göre hesaplamak için konumunuz kullanılır. Konumunuz yalnızca telefonunuzda işlenir; hiçbir sunucuya gönderilmez.')}</p>
   <button class="btn w" data-a="gps">${t('Konumumu kullan')}</button><p></p><button class="btn o w" data-a="manualloc">${t('Şehri elle seçeceğim')}</button>
@@ -212,7 +212,7 @@ routes.home = async () => {
   const tiles = [['🎧', "Kur'an dinle", 'reciters'], ['📖', 'Yasin dinle', 'reader/36/1/yasin'], ['🧭', 'Kıble bul', 'qibla'], ['📿', 'Zikirmatik', 'zikir'], ['🌙', 'Ramazan', 'ramazan'], ['✅', 'Namaz takibi', 'tracker']];
   setTimeout(tickHome, 0);
   return `${top('', false)}<div class="view">
-  <div class="hero"><div class="row"><img src="icons/icon-192.png" width="40" height="40" alt="" style="border-radius:10px"><div class="grow"><div class="brand">NUR VAKTİ GLOBAL</div>
+  <div class="hero"><div class="row"><img src="icons/icon-192.png" width="40" height="40" alt="" style="border-radius:10px"><div class="grow"><div class="brand">NAMAZ VAKTİ · EZAN VE KIBLE</div>
    <div class="city" data-a="nav" data-v="location">📍 ${esc(S.place.name)}</div></div><button class="ib" data-a="nav" data-v="settings" style="color:#fff" aria-label="${t('Ayarlar')}">⚙️</button></div>
    <div>${dfmt(todayYMD())}</div><div class="hijri">${hijriStr(hijri(todayYMD()))}</div>
    <div style="margin-top:16px" id="nextl"></div><div class="count" id="cd">--:--:--</div><div class="center gold" id="curl"></div></div>
@@ -605,7 +605,7 @@ routes.rehber = async (open = '') => {
 };
 routes.about = async () => {
   const ez = (await data('media/ezan.json')).ezan; let v = {}; try { v = await (await fetch('version.json', { cache: 'no-store' })).json(); } catch {}
-  return `${top(t('Hakkında ve lisanslar'))}<div class="view"><div class="card"><h3>NAMAZ VAKTİ: EZAN VE KIBLE</h3><p>NUR VAKTİ GLOBAL · ${esc(v.version || '__BUILD__')}<br>${t('Her vakitte, her yerde, huzurla.')}</p><p class="mut">${t('Reklamsız, hesap gerektirmeyen, verileri yalnızca telefonda saklayan namaz vakti uygulaması.')}</p></div>
+  return `${top(t('Hakkında ve lisanslar'))}<div class="view"><div class="card"><h3>NAMAZ VAKTİ: EZAN VE KIBLE</h3><p>Namaz Vakti: Ezan ve Kıble · ${esc(v.version || '__BUILD__')}<br>${t('Her vakitte, her yerde, huzurla.')}</p><p class="mut">${t('Reklamsız, hesap gerektirmeyen, verileri yalnızca telefonda saklayan namaz vakti uygulaması.')}</p></div>
    <div class="card"><h3>${t('Veri kaynakları')}</h3><ul>${['Namaz vakitleri: cihaz üzerinde astronomik hesaplama (16 yöntem); isteğe bağlı AlAdhan API (api.aladhan.com).', "Kur'an metni: Kral Fahd Kur'an Basım Kompleksi Uthmani metni, quran-json 3.1.2 paketi (CC BY 4.0).",
      'Türkçe meal: Diyanet İşleri Başkanlığı (tanzil.net); İngilizce: Saheeh International; Latin okunuş: tanzil.net.', "Kur'an sesleri: AlQuran Cloud CDN (cdn.islamic.network) ve mp3quran.net — kayıtların telif hakları sahiplerine aittir; ücretsiz dağıtım için yayımlanmıştır.",
      'Konum listesi: countries-states-cities-database (ODbL 1.0). Harita ve camiler: © OpenStreetMap katkıcıları (ODbL), Overpass API, Nominatim.', 'Altın/gümüş: gold-api.com; döviz: open.er-api.com.'].map(x => `<li>${t(x)}</li>`).join('')}</ul></div>
@@ -646,7 +646,7 @@ const A = {
       const tm = (await (await fetch(u)).json()).data.timings; const d = dayTimes(n);
       out.innerHTML = `<table><tr><th></th>${['imsak', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'].map(k => `<th>${pn(k)}</th>`).join('')}</tr><tr><td>${t('Uygulama')}</td>${['imsak', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'].map(k => `<td>${hhmm(d, k)}</td>`).join('')}</tr><tr><td>AlAdhan</td>${['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].map(k => `<td>${tm[k].slice(0, 5)}</td>`).join('')}</tr></table>`;
     } catch (e) { out.textContent = t("AlAdhan'a ulaşılamadı") + ': ' + e.message; } },
-  export: () => { const b = new Blob([JSON.stringify({ app: 'NUR VAKTİ GLOBAL', exported: new Date().toISOString(), settings: S, ...DB }, null, 1)], { type: 'application/json' });
+  export: () => { const b = new Blob([JSON.stringify({ app: "NAMAZ VAKTİ: EZAN VE KIBLE", exported: new Date().toISOString(), settings: S, ...DB }, null, 1)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'nurvakti-verilerim.json'; a.click(); },
   wipe: async () => { if (!confirm(t('Namaz takibi, zikir geçmişi, yer imleri, indirilen sesler ve ayarlar kalıcı olarak silinir.'))) return;
     Object.keys(localStorage).filter(k => k.startsWith('nv_')).forEach(k => localStorage.removeItem(k)); try { await caches.delete('nv-audio'); } catch {} location.reload(); },

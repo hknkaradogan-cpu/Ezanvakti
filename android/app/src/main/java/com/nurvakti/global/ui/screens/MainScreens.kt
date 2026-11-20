@@ -70,7 +70,7 @@ val MODE_TR = mapOf(AlertMode.FULL to "Tam ezan", AlertMode.SHORT to "Kısa ezan
     Column(Modifier.fillMaxSize().background(heroBrush).verticalScroll(rememberScrollState()).padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Spacer(Modifier.height(40.dp))
         Image(painterResource(R.drawable.ic_logo), null, Modifier.size(110.dp))
-        Text("NUR VAKTİ GLOBAL", color = Brand.GoldLight, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text("NAMAZ VAKTİ", color = Brand.GoldLight, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(t("Her vakitte, her yerde, huzurla."), color = Color.White.copy(alpha = .9f))
         Spacer(Modifier.height(28.dp))
         Card(shape = RoundedCornerShape(24.dp)) {
@@ -128,7 +128,7 @@ val MODE_TR = mapOf(AlertMode.FULL to "Tam ezan", AlertMode.SHORT to "Kısa ezan
                     Image(painterResource(R.drawable.ic_logo), null, Modifier.size(42.dp))
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("NUR VAKTİ GLOBAL", color = Brand.GoldLight, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1)
+                        Text("NAMAZ VAKTİ · EZAN VE KIBLE", color = Brand.GoldLight, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1)
                         Row(Modifier.clickable { go("location") }, verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.LocationOn, null, tint = Color.White, modifier = Modifier.size(16.dp))
                             Text(" ${s.place.name}", color = Color.White, style = MaterialTheme.typography.titleMedium)

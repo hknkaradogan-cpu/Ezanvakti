@@ -66,7 +66,7 @@ class DownloadWorker(ctx: Context, p: WorkerParameters) : CoroutineWorker(ctx, p
 
     private fun info(text: String, pct: Int): ForegroundInfo {
         val n: Notification = NotificationCompat.Builder(applicationContext, Channels.DOWNLOAD).setSmallIcon(R.drawable.ic_stat_nur)
-            .setContentTitle("Nur Vakti · İndirme").setContentText(text).setProgress(100, pct, pct == 0).setOngoing(true).setSilent(true).build()
+            .setContentTitle("Namaz Vakti · İndirme").setContentText(text).setProgress(100, pct, pct == 0).setOngoing(true).setSilent(true).build()
         return if (Build.VERSION.SDK_INT >= 29) ForegroundInfo(4242, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC) else ForegroundInfo(4242, n)
     }
 

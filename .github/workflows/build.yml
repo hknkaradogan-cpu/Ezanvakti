@@ -71,15 +71,16 @@ jobs:
       - name: APK'ları hazırla
         run: |
           mkdir -p out
-          cp android/app/build/outputs/apk/release/app-release.apk out/NurVakti-${VERSION_NAME}.apk
-          cp android/app/build/outputs/apk/debug/app-debug.apk out/NurVakti-${VERSION_NAME}-test.apk
-          cp android/app/build/outputs/bundle/release/app-release.aab out/NurVakti-${VERSION_NAME}-playstore.aab
+          cp android/app/build/outputs/apk/release/app-release.apk out/NamazVakti-${VERSION_NAME}.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk out/NamazVakti-${VERSION_NAME}-test.apk
+          cp out/NamazVakti-${VERSION_NAME}.apk out/NamazVakti.apk
+          cp android/app/build/outputs/bundle/release/app-release.aab out/NamazVakti-${VERSION_NAME}-playstore.aab
           ls -la out
-          "$ANDROID_HOME"/build-tools/$(ls "$ANDROID_HOME"/build-tools | sort -V | tail -1)/apksigner verify --print-certs out/NurVakti-${VERSION_NAME}.apk | head -3
+          "$ANDROID_HOME"/build-tools/$(ls "$ANDROID_HOME"/build-tools | sort -V | tail -1)/apksigner verify --print-certs out/NamazVakti-${VERSION_NAME}.apk | head -3
 
       - uses: actions/upload-artifact@v4
         with:
-          name: NurVakti-APK-${{ env.VERSION_NAME }}
+          name: NamazVakti-APK-${{ env.VERSION_NAME }}
           path: out/*.apk
 
       - uses: actions/upload-artifact@v4
@@ -97,8 +98,8 @@ jobs:
       - name: Web sitesi (iPhone / PC) + indirme sayfası
         run: |
           rm -rf _site && cp -r web _site
-          cp out/NurVakti-${VERSION_NAME}.apk _site/NurVakti.apk
-          echo "{\"version\":\"${VERSION_NAME}\",\"code\":${VERSION_CODE},\"apk\":\"NurVakti.apk\",\"built\":\"$(date -u +%FT%TZ)\",\"signed\":\"${RELEASE_SIGNED:-test}\"}" > _site/version.json
+          cp out/NamazVakti-${VERSION_NAME}.apk _site/NamazVakti.apk
+          echo "{\"version\":\"${VERSION_NAME}\",\"code\":${VERSION_CODE},\"apk\":\"NamazVakti.apk\",\"built\":\"$(date -u +%FT%TZ)\",\"signed\":\"${RELEASE_SIGNED:-test}\"}" > _site/version.json
           cp test-results/times.md _site/test-raporu.md || true
           for f in _site/sw.js _site/index.html _site/indir.html; do [ -f "$f" ] && sed -i "s/__BUILD__/${VERSION_NAME}/g" "$f"; done
           touch _site/.nojekyll
@@ -115,12 +116,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION_NAME }}
-          name: Nur Vakti ${{ env.VERSION_NAME }}
+          name: Namaz Vakti ${{ env.VERSION_NAME }}
           body: |
             NAMAZ VAKTİ: EZAN VE KIBLE — NUR VAKTİ GLOBAL ${{ env.VERSION_NAME }}
-            - **NurVakti-${{ env.VERSION_NAME }}.apk**: telefona kurulacak sürüm (küçültülmüş release derlemesi)
-            - **NurVakti-${{ env.VERSION_NAME }}-test.apk**: hata ayıklama derlemesi
-            - **NurVakti-${{ env.VERSION_NAME }}-playstore.aab**: Google Play Console'a yüklenecek paket (GitHub Secrets'taki imza anahtarı eklendikten sonra kullanın)
+            - **NamazVakti-${{ env.VERSION_NAME }}.apk**: telefona kurulacak sürüm (küçültülmüş release derlemesi)
+            - **NamazVakti-${{ env.VERSION_NAME }}-test.apk**: hata ayıklama derlemesi
+            - **NamazVakti-${{ env.VERSION_NAME }}-playstore.aab**: Google Play Console'a yüklenecek paket (GitHub Secrets'taki imza anahtarı eklendikten sonra kullanın)
             iPhone ve bilgisayar: https://hknkaradogan-cpu.github.io/Ezanvakti/
           files: |
             out/*.apk
