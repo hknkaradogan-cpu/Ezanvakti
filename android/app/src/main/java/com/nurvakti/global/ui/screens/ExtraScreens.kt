@@ -307,7 +307,7 @@ fun vibrate(ctx: Context, ms: Long) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Text(t(name), style = MaterialTheme.typography.titleMedium)
-                        Text(d.format(DateTimeFormatter.ofPattern("d MMMM yyyy, EEEE", locale(lg))) + " · " + Hijri.of(if (night) d.plusDays(1) else d, s.hijriAdjust).format(lg), style = MaterialTheme.typography.bodySmall)
+                        Text(d.format(DateTimeFormatter.ofPattern("d MMMM yyyy, EEEE", locale(lg))) + if (useOfficial) "" else " · " + Hijri.of(if (night) d.plusDays(1) else d, s.hijriAdjust).format(lg), style = MaterialTheme.typography.bodySmall)
                         if (night) Text(t("Bu gecenin (akşamın) ihyası"), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
                     }
                     val left = Duration.between(LocalDate.now().atStartOfDay(), d.atStartOfDay()).toDays()
@@ -475,7 +475,7 @@ private fun fetchMetal(cur: String): Triple<Double, Double, String> {
                 Text("• " + t("Namaz vakitleri: cihaz üzerinde astronomik hesaplama (16 yöntem); isteğe bağlı AlAdhan API (api.aladhan.com)."))
                 Text("• " + t("Kur'an metni: Kral Fahd Kur'an Basım Kompleksi Uthmani metni, quran-json 3.1.2 paketi (CC BY 4.0)."))
                 Text("• " + t("Türkçe meal: Diyanet İşleri Başkanlığı (tanzil.net); İngilizce: Saheeh International; Latin okunuş: tanzil.net."))
-                Text("• " + t("Kur'an sesleri: AlQuran Cloud CDN (cdn.islamic.network) — kayıtların telif hakları sahiplerine aittir; ücretsiz dağıtım için yayımlanmıştır."))
+                Text("• " + t("Kur'an sesleri: AlQuran Cloud CDN (cdn.islamic.network) ve mp3quran.net — kayıtların telif hakları sahiplerine aittir; ücretsiz dağıtım için yayımlanmıştır."))
                 Text("• " + t("Konum listesi: countries-states-cities-database (ODbL 1.0). Harita ve camiler: © OpenStreetMap katkıcıları (ODbL), Overpass API, Nominatim."))
                 Text("• " + t("Altın/gümüş: gold-api.com; döviz: open.er-api.com."))
             }

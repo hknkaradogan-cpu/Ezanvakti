@@ -27,6 +27,52 @@ def head(url):
     except Exception:
         return False, 0
 verify = '--verify' in sys.argv
+KEYS = {'alafasy': ['alafasy'], 'husary': ['husary'], 'minshawi': ['minshawi'], 'abdulbasit': ['abdulbasit'], 'sudais': ['sudais'],
+        'shuraim': ['shuraim', 'shuraym'], 'ajamy': ['ajamy', 'ajmi'], 'maher': ['maher', 'muaiqly'], 'hudhaify': ['hudhaify', 'huthayfi'],
+        'ayyoub': ['ayyoub', 'ayoub'], 'jibreel': ['jibreel', 'jibril'], 'shaatree': ['shaatree', 'shatri'], 'rifai': ['rifai']}
+INFO = {}
+if verify:
+    # CDN'in resmî listesi: hangi kimlik (edition) hangi bit hızında sure dosyası sunuyor
+    try:
+        import re
+        raw = urllib.request.urlopen(urllib.request.Request('https://cdn.islamic.network/quran/info/by-surah/info.json', headers={'User-Agent': 'NurVaktiGlobal-CI/1.0'}), timeout=30).read().decode()
+        data = json.loads(raw)
+        def walk(o, key=None):
+            if isinstance(o, dict):
+                ident = o.get('identifier') or key
+                brs = o.get('bitrates') or o.get('bitrate')
+                if ident and isinstance(ident, str) and ident.startswith('ar.') and brs is not None:
+                    INFO[ident] = [int(b) for b in (brs if isinstance(brs, list) else [brs]) if str(b).isdigit()]
+                for k, v in o.items(): walk(v, k)
+            elif isinstance(o, list):
+                for v in o: walk(v)
+        walk(data)
+        print('CDN listesi:', len(INFO), 'kimlik'); print(json.dumps(INFO)[:3000])
+    except Exception as e:
+        print('CDN listesi alınamadı:', e)
+MP3Q = {}
+if verify:
+    try:
+        rs = json.loads(urllib.request.urlopen(urllib.request.Request('https://www.mp3quran.net/api/v3/reciters?language=eng', headers={'User-Agent': 'NurVaktiGlobal-CI/1.0'}), timeout=30).read().decode())['reciters']
+        for rid, keys in KEYS.items():
+            for r in rs:
+                nm = r['name'].lower().replace(' ', '')
+                if any(k in nm for k in keys):
+                    ms = [m for m in r['moshaf'] if int(m.get('surah_total', 0)) >= 100 and 'mujawwad' not in m['name'].lower()]
+                    ms.sort(key=lambda m: (-int(m['surah_total']), 'murattal' not in m['name'].lower()))
+                    if ms: MP3Q[rid] = {'server': ms[0]['server'].rstrip('/') + '/', 'name': r['name']}; break
+        print('mp3quran eşleşmeleri:', {k: v['server'] for k, v in MP3Q.items()})
+    except Exception as e:
+        print('mp3quran listesi alınamadı:', e)
+def candidates(rid, base):
+    out = list(base)
+    for ident, brs in INFO.items():
+        if any(k in ident for k in KEYS.get(rid, [])) and 'mujawwad' not in ident:
+            for br in sorted(brs, key=lambda b: (b != 128, -b)): out.append((ident, br))
+    seen = set(); res = []
+    for c in out:
+        if c not in seen: seen.add(c); res.append(c)
+    return res
 out = []
 prev = {}
 p = f'{B}/data/media/reciters.json'
@@ -35,18 +81,27 @@ for rid, tr, en, info, cands in RECITERS:
     entry = {'id': rid, 'tr': tr, 'en': en, 'info': info, 'source': 'cdn.islamic.network (AlQuran Cloud CDN)'}
     if verify:
         chosen = None
-        for ed, br in cands:
+        for ed, br in candidates(rid, cands):
             ok, _ = head(CDN.format(br=br, ed=ed, n=1))
             if ok: chosen = (ed, br); break
-        if not chosen:
+        tmpl = None
+        if chosen:
+            ed, br = chosen; tmpl = CDN.replace('{br}', str(br)).replace('{ed}', ed); src = 'cdn.islamic.network (AlQuran Cloud CDN)'
+        else:
+            # Yedek kaynak: mp3quran.net (ücretsiz, ticari olmayan kullanım)
+            m = MP3Q.get(rid)
+            if m and head(m['server'] + '001.mp3')[0]:
+                ed, br = 'mp3quran:' + m['name'], 128; tmpl = m['server'] + '{nnn}.mp3'; src = 'mp3quran.net'
+        if not tmpl:
             print('YOK:', rid); continue
-        ed, br = chosen
+        url_of = lambda n: tmpl.replace('{nnn}', '%03d' % n).replace('{n}', str(n))
         with concurrent.futures.ThreadPoolExecutor(16) as ex:
-            res = list(ex.map(lambda n: (n, *head(CDN.format(br=br, ed=ed, n=n))), range(1, 115)))
+            res = list(ex.map(lambda n: (n, *head(url_of(n))), range(1, 115)))
         avail = [n for n, ok, _ in res if ok]
         sizes = {str(n): s for n, ok, s in res if ok}
-        entry.update({'edition': ed, 'bitrate': br, 'url': CDN.replace('{br}', str(br)).replace('{ed}', ed), 'surahs': avail, 'sizes': sizes, 'verified': True})
-        print(rid, ed, br, len(avail), '/114')
+        if not avail: print('YOK:', rid); continue
+        entry.update({'edition': ed, 'bitrate': br, 'url': tmpl, 'surahs': avail, 'sizes': sizes, 'verified': True, 'source': src})
+        print(rid, ed, br, len(avail), '/114', src)
     else:
         old = prev.get(rid)
         if old: entry = old

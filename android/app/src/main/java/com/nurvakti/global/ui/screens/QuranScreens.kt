@@ -104,10 +104,16 @@ import kotlinx.coroutines.withContext
         if (a != s.lastAyah || surah != s.lastSurah) vm.update { it.copy(lastSurah = surah, lastAyah = a) }
     }
     Column(Modifier.fillMaxSize()) {
+        var aa by remember { mutableStateOf(false) }
         Bar(if (yasin) t("Yasin-i Şerif") else "${su.n}. ${su.tr}", back) {
-            IconButton({ vm.update { it.copy(quranFont = (it.quranFont - 2).coerceAtLeast(16)) } }) { Icon(Icons.Filled.TextDecrease, t("Yazı küçült")) }
-            IconButton({ vm.update { it.copy(quranFont = (it.quranFont + 2).coerceAtMost(48)) } }) { Icon(Icons.Filled.TextIncrease, t("Yazı büyüt")) }
-            IconButton({ vm.update { it.copy(theme = if (it.theme == "DARK") "LIGHT" else "DARK") } }) { Icon(Icons.Filled.DarkMode, t("Gece modu")) }
+            Box {
+                IconButton({ aa = true }) { Icon(Icons.Filled.FormatSize, t("Yazı boyutu")) }
+                DropdownMenu(aa, { aa = false }) {
+                    DropdownMenuItem(text = { Text(t("Yazı büyüt")) }, leadingIcon = { Icon(Icons.Filled.TextIncrease, null) }, onClick = { vm.update { it.copy(quranFont = (it.quranFont + 2).coerceAtMost(48)) } })
+                    DropdownMenuItem(text = { Text(t("Yazı küçült")) }, leadingIcon = { Icon(Icons.Filled.TextDecrease, null) }, onClick = { vm.update { it.copy(quranFont = (it.quranFont - 2).coerceAtLeast(16)) } })
+                    DropdownMenuItem(text = { Text(t("Gece modu")) }, leadingIcon = { Icon(Icons.Filled.DarkMode, null) }, onClick = { aa = false; vm.update { it.copy(theme = if (it.theme == "DARK") "LIGHT" else "DARK") } })
+                }
+            }
         }
         // Oynatıcı şeridi
         Surface(color = MaterialTheme.colorScheme.primaryContainer) {
@@ -117,14 +123,18 @@ import kotlinx.coroutines.withContext
                         Modifier.size(52.dp)) { Icon(if (isThis && ps.playing) Icons.Filled.Pause else Icons.Filled.PlayArrow, t("Dinle")) }
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f).clickable { reciterMenu = true }) {
-                        Text(reciter.tr, fontWeight = FontWeight.SemiBold)
-                        Text(if (surah in reciter.surahs) t("Hafızı değiştirmek için dokunun") else t("Bu hafızın bu sure kaydı yok"), style = MaterialTheme.typography.bodySmall)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(reciter.tr, fontWeight = FontWeight.SemiBold, maxLines = 1, modifier = Modifier.weight(1f, fill = false)); Icon(Icons.Filled.ArrowDropDown, null)
+                        }
+                        Text(if (surah in reciter.surahs) t("Hafızı değiştirmek için dokunun") else t("Bu hafızın bu sure kaydı yok"), style = MaterialTheme.typography.bodySmall, maxLines = 1)
                         DropdownMenu(reciterMenu, { reciterMenu = false }) {
                             vm.content.reciters.forEach { r -> DropdownMenuItem(text = { Text("${r.tr} (${r.surahs.size}/114)") }, enabled = surah in r.surahs,
                                 onClick = { reciterMenu = false; vm.update { it.copy(reciter = r.id) } }) }
                         }
                     }
-                    IconButton({ vm.player.cycleRepeat() }) { Icon(when (ps.repeat) { Player.REPEAT_MODE_ONE -> Icons.Filled.RepeatOne; Player.REPEAT_MODE_ALL -> Icons.Filled.Repeat; else -> Icons.Filled.Repeat }, t("Tekrar"),
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
+                    IconButton({ vm.player.cycleRepeat() }) { Icon(when (ps.repeat) { Player.REPEAT_MODE_ONE -> Icons.Filled.RepeatOne; else -> Icons.Filled.Repeat }, t("Tekrar"),
                         tint = if (ps.repeat == Player.REPEAT_MODE_OFF) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary) }
                     IconButton({ vm.downloadSurah(reciter.id, surah); vm.toast("İndirme başladı — İndirme merkezinden takip edebilirsiniz") }) { Icon(Icons.Filled.Download, t("İndir")) }
                     IconButton({ go("player") }) { Icon(Icons.Filled.OpenInFull, t("Oynatıcı")) }
@@ -174,7 +184,7 @@ import kotlinx.coroutines.withContext
     Column(Modifier.fillMaxSize()) {
         Bar(t("Kur'an hafızları"), back)
         LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            item { Text(t("Kayıtlar AlQuran Cloud CDN (cdn.islamic.network) üzerinden yayınlanır. Her hafız için yalnızca sunucuda gerçekten bulunan sureler listelenir; eksik sure varsa sayı belirtilir."), style = MaterialTheme.typography.bodySmall) }
+            item { Text(t("Kayıtlar AlQuran Cloud CDN (cdn.islamic.network) ve mp3quran.net üzerinden yayınlanır. Her hafız için yalnızca sunucuda gerçekten bulunan sureler listelenir; eksik sure varsa sayı belirtilir."), style = MaterialTheme.typography.bodySmall) }
             items(vm.content.reciters) { r ->
                 val isFav = "reciter:${r.id}" in favs
                 SectionCard {

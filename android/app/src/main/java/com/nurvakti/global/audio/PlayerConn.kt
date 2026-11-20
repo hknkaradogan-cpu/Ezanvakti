@@ -68,6 +68,7 @@ class PlayerConn(private val ctx: Context, private val content: Content) {
                 val s = content.surahs[n - 1]
                 MediaItem.Builder().setMediaId("${r.id}:$n").setUri(uri).setMediaMetadata(
                     MediaMetadata.Builder().setTitle("${s.n}. ${s.tr} Suresi").setArtist(r.tr).setAlbumTitle("Kur'an-ı Kerim")
+                        .setArtworkUri(Uri.parse("android.resource://${ctx.packageName}/drawable/artwork"))
                         .setExtras(Bundle().apply { putInt("surah", n); putString("reciter", r.id) }).build()).build()
             }
             if (items.isEmpty()) return@connect

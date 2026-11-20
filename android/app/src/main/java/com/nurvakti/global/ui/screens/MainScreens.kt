@@ -128,7 +128,7 @@ val MODE_TR = mapOf(AlertMode.FULL to "Tam ezan", AlertMode.SHORT to "Kısa ezan
                     Image(painterResource(R.drawable.ic_logo), null, Modifier.size(42.dp))
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("NUR VAKTİ GLOBAL", color = Brand.GoldLight, fontWeight = FontWeight.Bold, fontSize = 15.sp, letterSpacing = 1.sp)
+                        Text("NUR VAKTİ GLOBAL", color = Brand.GoldLight, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1)
                         Row(Modifier.clickable { go("location") }, verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.LocationOn, null, tint = Color.White, modifier = Modifier.size(16.dp))
                             Text(" ${s.place.name}", color = Color.White, style = MaterialTheme.typography.titleMedium)
@@ -207,7 +207,7 @@ val MODE_TR = mapOf(AlertMode.FULL to "Tam ezan", AlertMode.SHORT to "Kısa ezan
     val lg = lang()
     Column(Modifier.fillMaxSize()) {
         Bar(t("Namaz vakitleri"), actions = { IconButton({ go("settings") }) { Icon(Icons.Filled.Tune, t("Hesaplama ayarları")) } })
-        TabRow(tab) { listOf("Günlük", "Haftalık", "Aylık", "Yıllık").forEachIndexed { i, l -> Tab(tab == i, { tab = i }, text = { Text(t(l)) }) } }
+        TabRow(tab) { listOf("Günlük", "Haftalık", "Aylık", "Yıllık").forEachIndexed { i, l -> Tab(tab == i, { tab = i }, text = { Text(t(l), maxLines = 1, softWrap = false, fontSize = 13.sp) }) } }
         val days: List<DayTimes> = remember(tab, month, year, s) {
             when (tab) {
                 0 -> vm.days(LocalDate.now(), 1)

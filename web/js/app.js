@@ -109,7 +109,7 @@ async function playIndex(i) {
 }
 async function playSurahs(reciterId, surahs, start) {
   const rs = (await data('media/reciters.json')).reciters; const r = rs.find(x => x.id === reciterId) || rs[0]; const su = await data('quran/surahs.json');
-  P.reciter = r; P.list = surahs.filter(n => r.surahs.includes(n)).map(n => ({ n, url: r.url.replace('{n}', n), title: `${n}. ${su[n - 1].tr} ${t('Suresi')}`, artist: r.tr }));
+  P.reciter = r; P.list = surahs.filter(n => r.surahs.includes(n)).map(n => ({ n, url: surl(r, n), title: `${n}. ${su[n - 1].tr} ${t('Suresi')}`, artist: r.tr }));
   if (!P.list.length) return toast('Bu hafızın bu sure kaydı mevcut değil');
   playIndex(Math.max(0, P.list.findIndex(x => x.n === start)));
 }
@@ -122,6 +122,7 @@ if ('mediaSession' in navigator) {
   ms.setActionHandler('nexttrack', () => P.i + 1 < P.list.length && playIndex(P.i + 1)); ms.setActionHandler('previoustrack', () => P.i > 0 && playIndex(P.i - 1));
   ms.setActionHandler('seekbackward', () => audio.currentTime -= 10); ms.setActionHandler('seekforward', () => audio.currentTime += 10);
 }
+const surl = (r, n) => r.url.replace('{nnn}', String(n).padStart(3, '0')).replace('{n}', n);
 const mmss = s => { s = Math.max(0, Math.floor(s || 0)); return s >= 3600 ? `${Math.floor(s / 3600)}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 function renderPlayer(onlyTime) {
   const el = $('#player'); const it = P.list[P.i];
@@ -308,13 +309,13 @@ routes.reader = async (sn = '1', an = '1', mode = '') => {
 routes.reciters = async (open = '') => {
   const [rs, su] = await Promise.all([data('media/reciters.json'), data('quran/surahs.json')]);
   const cached = await cachedUrls();
-  return `${top(t("Kur'an hafızları"))}<div class="view"><p class="mut">${t('Kayıtlar AlQuran Cloud CDN (cdn.islamic.network) üzerinden yayınlanır. Her hafız için yalnızca sunucuda gerçekten bulunan sureler listelenir; eksik sure varsa sayı belirtilir.')}</p>
+  return `${top(t("Kur'an hafızları"))}<div class="view"><p class="mut">${t('Kayıtlar AlQuran Cloud CDN (cdn.islamic.network) ve mp3quran.net üzerinden yayınlanır. Her hafız için yalnızca sunucuda gerçekten bulunan sureler listelenir; eksik sure varsa sayı belirtilir.')}</p>
   ${rs.reciters.map(r => { const fav = DB.favs.includes('reciter:' + r.id);
     return `<div class="card"><div class="row"><div class="grow"><b>${esc(r.tr)}</b><div class="mut">${esc(r.info)}</div><div class="${r.surahs.length === 114 ? '' : 'err'}" style="font-size:13px">${r.surahs.length}/114 ${t('sure')}${r.verified ? '' : ' · ' + t('sunucu doğrulaması bekliyor')}</div></div>
      <button class="ib" data-a="fav" data-v="reciter:${r.id}">${fav ? '⭐' : '☆'}</button></div>
      <div class="row" style="flex-wrap:wrap"><button class="btn s ${S.reciter === r.id ? '' : 'o'}" data-a="setreciter" data-v="${r.id}">${S.reciter === r.id ? t('Seçili') : t('Seç')}</button>
      <button class="btn o s" data-a="play" data-r="${r.id}" data-v="1">▶ ${t('Örnek: Fâtiha')}</button><a class="btn o s" href="#/reciters/${open === r.id ? '' : r.id}">${t('Sureler')}</a></div>
-     ${open === r.id ? `<p></p><button class="btn o s w" data-a="dlall" data-v="${r.id}">⬇️ ${t('Tüm sureleri indir')}</button>${r.surahs.map(n => `<div class="kv"><span>${n}. ${esc(su[n - 1].tr)} ${cached.has(r.url.replace('{n}', n)) ? '✅' : ''}</span><span><button class="btn o s" data-a="play" data-r="${r.id}" data-v="${n}">▶</button> <button class="btn o s" data-a="dl" data-r="${r.id}" data-v="${n}">⬇️</button></span></div>`).join('')}` : ''}</div>`; }).join('')}</div>`;
+     ${open === r.id ? `<p></p><button class="btn o s w" data-a="dlall" data-v="${r.id}">⬇️ ${t('Tüm sureleri indir')}</button>${r.surahs.map(n => `<div class="kv"><span>${n}. ${esc(su[n - 1].tr)} ${cached.has(surl(r, n)) ? '✅' : ''}</span><span><button class="btn o s" data-a="play" data-r="${r.id}" data-v="${n}">▶</button> <button class="btn o s" data-a="dl" data-r="${r.id}" data-v="${n}">⬇️</button></span></div>`).join('')}` : ''}</div>`; }).join('')}</div>`;
 };
 routes.bookmarks = async () => {
   const [su, tr] = await Promise.all([data('quran/surahs.json'), data('quran/tr.json')]);
@@ -603,7 +604,7 @@ routes.about = async () => {
   const ez = (await data('media/ezan.json')).ezan; let v = {}; try { v = await (await fetch('version.json', { cache: 'no-store' })).json(); } catch {}
   return `${top(t('Hakkında ve lisanslar'))}<div class="view"><div class="card"><h3>NAMAZ VAKTİ: EZAN VE KIBLE</h3><p>NUR VAKTİ GLOBAL · ${esc(v.version || '__BUILD__')}<br>${t('Her vakitte, her yerde, huzurla.')}</p><p class="mut">${t('Reklamsız, hesap gerektirmeyen, verileri yalnızca telefonda saklayan namaz vakti uygulaması.')}</p></div>
    <div class="card"><h3>${t('Veri kaynakları')}</h3><ul>${['Namaz vakitleri: cihaz üzerinde astronomik hesaplama (16 yöntem); isteğe bağlı AlAdhan API (api.aladhan.com).', "Kur'an metni: Kral Fahd Kur'an Basım Kompleksi Uthmani metni, quran-json 3.1.2 paketi (CC BY 4.0).",
-     'Türkçe meal: Diyanet İşleri Başkanlığı (tanzil.net); İngilizce: Saheeh International; Latin okunuş: tanzil.net.', "Kur'an sesleri: AlQuran Cloud CDN (cdn.islamic.network) — kayıtların telif hakları sahiplerine aittir; ücretsiz dağıtım için yayımlanmıştır.",
+     'Türkçe meal: Diyanet İşleri Başkanlığı (tanzil.net); İngilizce: Saheeh International; Latin okunuş: tanzil.net.', "Kur'an sesleri: AlQuran Cloud CDN (cdn.islamic.network) ve mp3quran.net — kayıtların telif hakları sahiplerine aittir; ücretsiz dağıtım için yayımlanmıştır.",
      'Konum listesi: countries-states-cities-database (ODbL 1.0). Harita ve camiler: © OpenStreetMap katkıcıları (ODbL), Overpass API, Nominatim.', 'Altın/gümüş: gold-api.com; döviz: open.er-api.com.'].map(x => `<li>${t(x)}</li>`).join('')}</ul></div>
    <div class="card"><h3>${t('Ezan kayıtları ve lisansları')}</h3>${ez.map(e => `<p>• ${t(e.tr)} — ${esc(e.author)}, ${esc(e.license)}<br><a href="${e.source}" target="_blank" rel="noopener" style="font-size:12px;word-break:break-all">${esc(e.source)}</a></p>`).join('')}</div>
    <div class="card"><h3>${t('Dini içerik')}</h3><p class="mut">${t("Hadis ve dualar Kütüb-i Sitte'deki (Buhârî, Müslim, Ebû Dâvûd, Tirmizî, Nesâî, İbn Mâce) rivayetlerden, kaynak numarasıyla birlikte verilmiştir. Kur'an'dan alınan dualar doğrudan Kur'an metninden gösterilir. Esmâü'l-Hüsnâ: Tirmizî, Deavât 82.")}</p></div>
@@ -624,10 +625,10 @@ const A = {
   night: () => { setS({ theme: document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark' }); },
   playsurah: el => { const s = +el.dataset.v; playSurahs(S.reciter, el.dataset.y === '1' ? [s] : [...Array(115 - s)].map((_, i) => s + i), s); },
   play: el => playSurahs(el.dataset.r, [+el.dataset.v], +el.dataset.v),
-  dlsurah: async el => { const r = (await data('media/reciters.json')).reciters.find(x => x.id === S.reciter); const n = +el.dataset.v; download(r.url.replace('{n}', n), `${n} · ${r.tr}`); toast('İndirme başladı — İndirme merkezinden takip edebilirsiniz'); },
-  dl: async el => { const r = (await data('media/reciters.json')).reciters.find(x => x.id === el.dataset.r); const n = +el.dataset.v; download(r.url.replace('{n}', n), `${n} · ${r.tr}`); toast('İndirme başladı — İndirme merkezinden takip edebilirsiniz'); },
+  dlsurah: async el => { const r = (await data('media/reciters.json')).reciters.find(x => x.id === S.reciter); const n = +el.dataset.v; download(surl(r, n), `${n} · ${r.tr}`); toast('İndirme başladı — İndirme merkezinden takip edebilirsiniz'); },
+  dl: async el => { const r = (await data('media/reciters.json')).reciters.find(x => x.id === el.dataset.r); const n = +el.dataset.v; download(surl(r, n), `${n} · ${r.tr}`); toast('İndirme başladı — İndirme merkezinden takip edebilirsiniz'); },
   dlall: async el => { const r = (await data('media/reciters.json')).reciters.find(x => x.id === el.dataset.v); toast(`${r.surahs.length} sure indirme kuyruğuna eklendi`);
-    for (const n of r.surahs) await download(r.url.replace('{n}', n), `${n} · ${r.tr}`); },
+    for (const n of r.surahs) await download(surl(r, n), `${n} · ${r.tr}`); },
   dlez: el => { download(el.dataset.v, el.dataset.t).then(render); },
   dlpause: el => DL.get(el.dataset.v)?.ctrl.abort(), dlresume: el => { const v = DL.get(el.dataset.v); download(el.dataset.v, v?.title || ''); },
   dlcancel: el => { DL.get(el.dataset.v)?.ctrl.abort(); DL.delete(el.dataset.v); render(); },

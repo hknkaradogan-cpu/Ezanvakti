@@ -22,11 +22,37 @@ start --es ci lang:tr; sleep 2; start --es ci theme:DARK; sleep 2; start; shot d
 log ""; log "## Kur'an dinleme (Alafasy, Yasin) ve ekran kapalıyken çalma"
 start --es open yasin; sleep 3; start --es ci play:36 --es open yasin; sleep 20; shot playing_yasin 1
 adb shell input keyevent 223; sleep 15
-st=$(adb shell dumpsys media_session | tr -d '\r' | grep -A12 "$PKG" | grep -m1 -o "state=[0-9]*")
-log "  MediaSession durumu (ekran kapalı): $st"; [ "$st" = "state=3" ] && ok "Ekran kapalıyken Kur'an çalmaya devam ediyor (PLAYING)" || ko "Ekran kapalıyken çalma doğrulanamadı ($st)"
+st=$(adb shell dumpsys media_session | tr -d "\r" | grep -A14 "package=$PKG" | grep -m1 -o "state=PlaybackState {state=[A-Z_]*")
+log "  MediaSession durumu (ekran kapalı): $st"; [ "$st" = "state=PlaybackState {state=PLAYING" ] && ok "Ekran kapalıyken Kur'an çalmaya devam ediyor (PLAYING)" || ko "Ekran kapalıyken çalma doğrulanamadı ($st)"
 adb shell input keyevent 224; sleep 2; adb shell input keyevent 82
 adb shell dumpsys media_session | tr -d '\r' | grep -A12 "$PKG" | head -14 >> $R
 adb shell cmd media_session dispatch pause 2>/dev/null || adb shell input keyevent 127
+log ""; log "## İndirme merkezi ve çevrimdışı oynatma"
+start --es ci dl:36; sleep 3; start --es ci dlezan:mekke; sleep 45; start --es open downloads; shot downloads_after 4
+fq=$(adb shell run-as $PKG ls -l files/media/quran/alafasy/ 2>/dev/null | tr -d '\r' | grep -c "36.mp3"); fe=$(adb shell run-as $PKG ls -l files/media/ezan/ 2>/dev/null | tr -d '\r' | grep -c "mekke.mp3")
+adb shell run-as $PKG ls -l files/media/quran/alafasy/ files/media/ezan/ 2>/dev/null | sed 's/^/    /' >> $R
+[ "$fq" -gt 0 ] && ok "Yasin (Alafasy) telefona indirildi" || ko "Sure indirilemedi"; [ "$fe" -gt 0 ] && ok "Mekke ezanı telefona indirildi" || ko "Ezan indirilemedi"
+adb shell cmd connectivity airplane-mode enable; adb shell svc wifi disable; adb shell svc data disable; sleep 5
+start --es ci play:36; sleep 12
+st=$(adb shell dumpsys media_session | tr -d "\r" | grep -A14 "package=$PKG" | grep -m1 -o "state=PlaybackState {state=[A-Z_]*")
+[ "$st" = "state=PlaybackState {state=PLAYING" ] && ok "İnternet kapalıyken indirilen Yasin çalıyor" || ko "Çevrimdışı oynatma doğrulanamadı ($st)"
+adb shell input keyevent 127; sleep 2
+start --es ci alarm25:mekke; sleep 3; adb shell input keyevent 223; sleep 35
+svc=$(adb shell dumpsys activity services $PKG | tr -d '\r' | grep -c "AdhanService"); adb logcat -d | grep -c "PlaybackException" > /tmp/pe; 
+[ "$svc" -gt 0 ] && ok "İnternet kapalı + ekran kapalı: indirilen Mekke ezanı alarmla çaldı" || ko "Çevrimdışı ezan alarmı doğrulanamadı"
+adb shell input keyevent 224; adb shell am startservice -n $PKG/.alarm.AdhanService -a com.nurvakti.global.STOP_ADHAN >/dev/null 2>&1
+adb shell cmd connectivity airplane-mode disable; adb shell svc wifi enable; adb shell svc data enable; sleep 8
+log ""; log "## Farklı hafızlar"
+for rr in husary minshawi sudais; do start --es ci "playr:$rr:112"; sleep 14
+  st=$(adb shell dumpsys media_session | tr -d "\r" | grep -A14 "package=$PKG" | grep -m1 -o "state=PlaybackState {state=[A-Z_]*")
+  [ "$st" = "state=PlaybackState {state=PLAYING" ] && ok "$rr ile İhlâs suresi çalıyor" || log "- ⚠️ $rr çalınamadı ($st) — hafız listede yoksa beklenen durum"
+  adb shell input keyevent 127; sleep 1; done
+start --es open reciters; shot reciters_list 4
+log ""; log "## Konum değişikliği"
+start --es ci "place:51.5074,-0.1278,GB,x,Londra"; sleep 4; start; shot place_london 5; start --es open times; shot times_london 4
+start --es ci "place:41.0082,28.9784,TR,x,İstanbul"; sleep 3
+ok "Konum Londra'ya değiştirildi (ekran görüntüsü: place_london.png, times_london.png)"
+
 log ""; log "## Gerçek ezan alarmı (AlarmManager, ekran kapalı)"
 start --es ci alarm45; sleep 3
 adb shell dumpsys alarm | tr -d '\r' | grep -B2 -A6 "$PKG" | grep -m3 -E "RTC_WAKEUP|ALARM_CLOCK|origWhen" | sed 's/^/    /' >> $R

@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
     val edition: String, val bitrate: Int, val url: String, val surahs: List<Int>,
     val sizes: Map<String, Long> = emptyMap(), val verified: Boolean = false,
 ) {
-    fun surahUrl(n: Int) = url.replace("{n}", n.toString())
+    fun surahUrl(n: Int) = url.replace("{nnn}", "%03d".format(n)).replace("{n}", n.toString())
     val complete get() = surahs.size == 114
 }
 @Serializable data class ReciterFile(val generated: String = "", val reciters: List<Reciter>)
