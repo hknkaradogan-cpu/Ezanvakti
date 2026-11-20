@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val openTarget = intent?.getStringExtra("open")
+        intent?.getStringExtra("ci")?.let { CiHooks.run(this, vm, it) }
         setContent {
             val s by vm.settings.collectAsState()
             val lang = s?.lang ?: "tr"

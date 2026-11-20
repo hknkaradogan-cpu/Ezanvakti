@@ -44,7 +44,7 @@ private val TABS = listOf(Tab("home", "Ana sayfa", Icons.Filled.Home), Tab("time
     val snack = remember { SnackbarHostState() }
     val strings = LocalStrings.current
     LaunchedEffect(Unit) { vm.messages.collect { snack.showSnackbar(strings.t(it)) } }
-    LaunchedEffect(openTarget) { if (openTarget == "player") nav.navigate("player") }
+    
     val cur = s
     if (cur == null) { Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }; return }
     if (!cur.onboarded) { Onboarding(vm); return }
@@ -62,6 +62,7 @@ private val TABS = listOf(Tab("home", "Ana sayfa", Icons.Filled.Home), Tab("time
         },
     ) { pad ->
         NavHost(nav, startDestination = "home", modifier = Modifier.padding(pad)) { routes(vm, nav) }
+        LaunchedEffect(openTarget) { if (openTarget != null && openTarget != "home") runCatching { nav.navigate(openTarget) } }
     }
 }
 

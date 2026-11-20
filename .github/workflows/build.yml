@@ -82,6 +82,12 @@ jobs:
           path: out/*.apk
 
       - uses: actions/upload-artifact@v4
+        with:
+          name: apk-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 3
+
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-raporu-${{ env.VERSION_NAME }}
@@ -96,8 +102,13 @@ jobs:
           for f in _site/sw.js _site/index.html _site/indir.html; do [ -f "$f" ] && sed -i "s/__BUILD__/${VERSION_NAME}/g" "$f"; done
           touch _site/.nojekyll
 
-      - uses: actions/upload-pages-artifact@v3
-        with: { path: _site }
+      - name: Web sitesini gh-pages dalına yayınla
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
+          force_orphan: true
+          commit_message: "Site ${{ env.VERSION_NAME }}"
 
       - name: GitHub Release
         uses: softprops/action-gh-release@v2
@@ -116,12 +127,31 @@ jobs:
         if: env.TEST_FAIL != ''
         run: echo "Namaz vakti testleri başarısız (test-results/times.md)"; exit 1
 
-  deploy:
+  emulator:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.d.outputs.page_url }}
+    timeout-minutes: 45
     steps:
-      - id: d
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: apk-debug, path: out }
+      - name: KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - name: Android 14 emülatöründe gerçek test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: bash tools/emulator_test.sh
+      - name: Sonuçları ci-results dalına yaz
+        if: always()
+        run: |
+          cd ci-out && git init -q && git checkout -q -b ci-results
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          git add -A && git commit -qm "Emülatör testi ${{ github.run_number }}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" ci-results

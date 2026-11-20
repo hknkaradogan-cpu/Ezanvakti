@@ -8,7 +8,7 @@ pat_js = re.compile(r"\bt\(\s*'((?:[^'\\]|\\.)*)'\s*\)")
 for f in glob.glob(f'{R}/android/app/src/main/java/**/*.kt', recursive=True):
     keys |= {k.encode().decode('unicode_escape').encode('latin1').decode('utf-8') if '\\' in k else k for k in pat.findall(open(f, encoding='utf-8').read())}
 for f in glob.glob(f'{R}/web/js/*.js'):
-    s = open(f, encoding='utf-8').read(); keys |= set(pat_js.findall(s)) | set(pat.findall(s))
+    s = open(f, encoding='utf-8').read(); keys |= {k.replace('\\n', '\n') for k in set(pat_js.findall(s)) | set(pat.findall(s))}
 # Kod içinde t() ile değil değişkenle çevrilen sabit metinler
 extra = ["İmsak","Sabah","Güneş","Öğle","İkindi","Akşam","Yatsı","Ana sayfa","Vakitler","Kur'an","Kıble","Menü","Tam ezan","Kısa ezan","Normal bildirim","Titreşim","Sessiz","Kapalı",
          "Sırada","İndiriliyor","Duraklatıldı","İndirildi","Başarısız","Ramazan Bayramı","Kurban Bayramı","Bu hafta","Bu ay","Bu yıl","Gün","Tarih","İftar"]

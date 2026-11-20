@@ -179,7 +179,7 @@ async function render() {
   const [r, ...args] = (location.hash.replace(/^#\/?/, '') || 'home').split('/');
   const fn = routes[r] || routes.home;
   document.documentElement.lang = S.lang; document.documentElement.dir = S.lang === 'ar' ? 'rtl' : 'ltr';
-  const main = ['home', 'times', 'quran', 'qibla', 'menu'].includes(r) ? r : null;
+  const main = S.onboarded && ['home', 'times', 'quran', 'qibla', 'menu'].includes(r) ? r : null;
   try { $('#app').innerHTML = (await fn(...args)) + (main ? nav(main) : ''); }
   catch (e) { $('#app').innerHTML = top(t('Hata')) + `<div class="view"><div class="card err">${esc(e.message)}</div></div>`; console.error(e); }
   window.scrollTo(0, 0);
@@ -188,7 +188,7 @@ function applyTheme() { document.documentElement.dataset.theme = S.theme; }
 
 // ------------------------------------------------------------------ EKRANLAR
 const MODES = { FULL: 'Tam ezan', SHORT: 'Kısa ezan', NOTIFY: 'Normal bildirim', VIBRATE: 'Titreşim', SILENT: 'Sessiz', OFF: 'Kapalı' };
-const MODE_IC = { FULL: '🔊', SHORT: '📢', NOTIFY: '🔔', VIBRATE: '📳', SILENT: '🔕', OFF: '⛔' };
+const MODE_IC = { FULL: '🔊', SHORT: '📢', NOTIFY: '🔔', VIBRATE: '📳', SILENT: '🔕', OFF: '🔇' };
 const dayIdx = () => Math.floor(Date.now() / 86400000);
 const dfmt = (o, opt = { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' }) => new Date(Date.UTC(o.y, o.m - 1, o.d, 12)).toLocaleDateString(locale(), { ...opt, timeZone: 'UTC' });
 

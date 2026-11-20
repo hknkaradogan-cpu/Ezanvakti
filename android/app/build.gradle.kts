@@ -100,3 +100,7 @@ val copyBundledEzan by tasks.registering(Copy::class) {
     into(layout.buildDirectory.dir("generated/ezanAssets/ezan"))
 }
 tasks.named("preBuild") { dependsOn(copyBundledEzan) }
+
+tasks.withType<Test>().configureEach {
+    testLogging { events("passed", "failed", "skipped"); showStandardStreams = true; exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL }
+}
