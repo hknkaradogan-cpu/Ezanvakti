@@ -60,6 +60,7 @@ class AdhanService : Service() {
         ServiceCompat.startForeground(this, 77, n, type)
 
         val uri = resolve(this, intent?.getStringExtra("sound") ?: "klasik", intent?.getStringExtra("custom"), intent?.getBooleanExtra("short", false) == true)
+        android.util.Log.i("NurAdhan", "playing $uri")
         player?.release()
         player = ExoPlayer.Builder(this).build().apply {
             setAudioAttributes(AudioAttributes.Builder().setUsage(C.USAGE_ALARM).setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build(), false)

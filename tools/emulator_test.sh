@@ -38,8 +38,9 @@ st=$(adb shell dumpsys media_session | tr -d "\r" | grep -A14 "package=$PKG" | g
 [ "$st" = "state=PlaybackState {state=PLAYING" ] && ok "İnternet kapalıyken indirilen Yasin çalıyor" || ko "Çevrimdışı oynatma doğrulanamadı ($st)"
 adb shell input keyevent 127; sleep 2
 start --es ci alarm25:mekke; sleep 3; adb shell input keyevent 223; sleep 35
-svc=$(adb shell dumpsys activity services $PKG | tr -d '\r' | grep -c "AdhanService"); adb logcat -d | grep -c "PlaybackException" > /tmp/pe; 
-[ "$svc" -gt 0 ] && ok "İnternet kapalı + ekran kapalı: indirilen Mekke ezanı alarmla çaldı" || ko "Çevrimdışı ezan alarmı doğrulanamadı"
+svc=$(adb shell dumpsys activity services $PKG | tr -d '\r' | grep -c "AdhanService"); used=$(adb logcat -d -s NurAdhan | grep -c "playing file:.*mekke.mp3")
+adb logcat -d -s NurAdhan | tail -3 | sed 's/^/    /' >> $R
+[ "$svc" -gt 0 ] && [ "$used" -gt 0 ] && ok "İnternet kapalı + ekran kapalı: indirilen Mekke ezanı dosyadan çaldı" || ko "Çevrimdışı Mekke ezanı doğrulanamadı (servis=$svc, dosya=$used)"
 adb shell input keyevent 224; adb shell am startservice -n $PKG/.alarm.AdhanService -a com.nurvakti.global.STOP_ADHAN >/dev/null 2>&1
 adb shell cmd connectivity airplane-mode disable; adb shell svc wifi enable; adb shell svc data enable; sleep 8
 log ""; log "## Farklı hafızlar"

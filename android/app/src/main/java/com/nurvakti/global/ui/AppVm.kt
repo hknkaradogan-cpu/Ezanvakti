@@ -115,7 +115,8 @@ class AppVm(app: Application) : AndroidViewModel(app) {
     }
     fun downloadEzan(id: String) = viewModelScope.launch {
         val e = content.ezans.firstOrNull { it.id == id } ?: return@launch
-        Downloads.enqueue(ctx, "ezan:$id", "ezan", e.tr, com.nurvakti.global.BuildConfig.WEB_BASE + "audio/ezan/" + e.file, content.ezanFile(e).path, e.size)
+        // Ezan dosyaları depo içindeki gh-pages dalından (GitHub) indirilir; GitHub Pages kapalı olsa da çalışır
+        Downloads.enqueue(ctx, "ezan:$id", "ezan", e.tr, "https://raw.githubusercontent.com/hknkaradogan-cpu/Ezanvakti/gh-pages/audio/ezan/" + e.file, content.ezanFile(e).path, e.size)
     }
 
     fun today(): String = now.value.toLocalDate().toString()
