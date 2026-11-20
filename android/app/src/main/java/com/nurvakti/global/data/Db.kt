@@ -89,7 +89,7 @@ data class DownloadRow(
 @Database(
     entities = [PrayerLog::class, Kaza::class, FastLog::class, ZikirSession::class, CustomZikir::class, Bookmark::class,
         SavedPlaceRow::class, Favorite::class, DownloadRow::class],
-    version = 1, exportSchema = true,
+    version = 1, exportSchema = false,
 )
 abstract class AppDb : RoomDatabase() {
     abstract fun dao(): AppDao

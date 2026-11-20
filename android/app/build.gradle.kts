@@ -64,7 +64,6 @@ android {
     lint { abortOnError = false; checkReleaseBuilds = false }
 }
 
-ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
 dependencies {
     val composeBom = platform("androidx.compose:compose-bom:2025.06.01")
