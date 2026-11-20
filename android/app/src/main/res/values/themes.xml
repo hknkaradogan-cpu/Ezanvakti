@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.Nur" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+    <color name="bg">#FBF8F1</color>
+    <color name="emerald">#0B6E4F</color>
+    <color name="gold">#C9A227</color>
+    <color name="navy">#0B1F3A</color>
+</resources>

@@ -1,0 +1,8 @@
+-keepattributes *Annotation*, InnerClasses, Signature
+-dontnote kotlinx.serialization.**
+-keepclassmembers class kotlinx.serialization.json.** { *** Companion; }
+-keepclasseswithmembers class ** { kotlinx.serialization.KSerializer serializer(...); }
+-keep,includedescriptorclasses class com.nurvakti.global.**$$serializer { *; }
+-keepclassmembers class com.nurvakti.global.** { *** Companion; }
+-keep class com.nurvakti.global.web.** { *; }
+-keepclassmembers class * { @android.webkit.JavascriptInterface <methods>; }

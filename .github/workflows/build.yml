@@ -1,0 +1,123 @@
+name: APK + Web derleme
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VERSION_NAME: 1.0.${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+
+      - name: Namaz vakti testleri (Diyanet resmî tablo + AlAdhan canlı)
+        run: node tools/test_times.mjs
+
+      - name: Açık lisanslı ezan kayıtlarını al (Wikimedia Commons)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          bash tools/fetch_ezan.sh
+
+      - name: Hafız kayıtlarını doğrula (114 sure x her hafız)
+        run: |
+          python3 tools/media_catalog.py --verify | tee test-results/reciters.txt
+          python3 tools/build_i18n_check.py | tee test-results/i18n.txt || true
+
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: "8.14.3" }
+
+      - name: Release imzalama anahtarı (GitHub Secrets)
+        env:
+          KS: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KS" ]; then echo "$KS" | base64 -d > $RUNNER_TEMP/release.jks; echo "SIGNING_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> $GITHUB_ENV; echo "RELEASE_SIGNED=1" >> $GITHUB_ENV
+          else echo "UYARI: SIGNING_KEYSTORE_BASE64 tanımlı değil; release APK sabit test anahtarıyla imzalanır."; fi
+
+      - name: Birim testleri + APK derleme
+        env:
+          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        working-directory: android
+        run: gradle --no-daemon testDebugUnitTest assembleRelease assembleDebug
+
+      - name: Test raporlarını topla
+        if: always()
+        run: |
+          mkdir -p test-results
+          cp -r android/app/build/reports/tests test-results/unit 2>/dev/null || true
+          cp android/app/build/test-results/testDebugUnitTest/*.xml test-results/ 2>/dev/null || true
+
+      - name: APK'ları hazırla
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/release/app-release.apk out/NurVakti-${VERSION_NAME}.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk out/NurVakti-${VERSION_NAME}-test.apk
+          ls -la out
+          "$ANDROID_HOME"/build-tools/$(ls "$ANDROID_HOME"/build-tools | sort -V | tail -1)/apksigner verify --print-certs out/NurVakti-${VERSION_NAME}.apk | head -3
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NurVakti-APK-${{ env.VERSION_NAME }}
+          path: out/*.apk
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-raporu-${{ env.VERSION_NAME }}
+          path: test-results
+
+      - name: Web sitesi (iPhone / PC) + indirme sayfası
+        run: |
+          rm -rf _site && cp -r web _site
+          cp out/NurVakti-${VERSION_NAME}.apk _site/NurVakti.apk
+          echo "{\"version\":\"${VERSION_NAME}\",\"code\":${VERSION_CODE},\"apk\":\"NurVakti.apk\",\"built\":\"$(date -u +%FT%TZ)\",\"signed\":\"${RELEASE_SIGNED:-test}\"}" > _site/version.json
+          cp test-results/times.md _site/test-raporu.md || true
+          for f in _site/sw.js _site/index.html _site/indir.html; do [ -f "$f" ] && sed -i "s/__BUILD__/${VERSION_NAME}/g" "$f"; done
+          touch _site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: _site }
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION_NAME }}
+          name: Nur Vakti ${{ env.VERSION_NAME }}
+          body: |
+            NAMAZ VAKTİ: EZAN VE KIBLE — NUR VAKTİ GLOBAL ${{ env.VERSION_NAME }}
+            - **NurVakti-${{ env.VERSION_NAME }}.apk**: telefona kurulacak sürüm (küçültülmüş release derlemesi)
+            - **NurVakti-${{ env.VERSION_NAME }}-test.apk**: hata ayıklama derlemesi
+            iPhone ve bilgisayar: https://hknkaradogan-cpu.github.io/Ezanvakti/
+          files: out/*.apk
+          make_latest: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.d.outputs.page_url }}
+    steps:
+      - id: d
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,16 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="../leaflet/leaflet.css"><script src="../leaflet/leaflet.js"></script>
+<style>html,body,#m{margin:0;height:100%;background:#e8efe9}.lbl{background:#0B6E4F;color:#fff;padding:3px 7px;border-radius:8px;font:12px sans-serif;white-space:nowrap}</style></head>
+<body><div id="m"></div><script>
+// Android tarafı: window.show({mode:'qibla'|'mosque', lat, lng, items:[{name,lat,lng}]})
+var map=L.map('m',{zoomControl:true});
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap katkıcıları'}).addTo(map);
+var layer=L.layerGroup().addTo(map);var K=[21.4224779,39.8262136];
+function gc(a,b,n){var r=Math.PI/180,p1=a[0]*r,l1=a[1]*r,p2=b[0]*r,l2=b[1]*r,d=2*Math.asin(Math.sqrt(Math.pow(Math.sin((p2-p1)/2),2)+Math.cos(p1)*Math.cos(p2)*Math.pow(Math.sin((l2-l1)/2),2))),o=[];
+ for(var i=0;i<=n;i++){var f=i/n,A=Math.sin((1-f)*d)/Math.sin(d),B=Math.sin(f*d)/Math.sin(d),x=A*Math.cos(p1)*Math.cos(l1)+B*Math.cos(p2)*Math.cos(l2),y=A*Math.cos(p1)*Math.sin(l1)+B*Math.cos(p2)*Math.sin(l2),z=A*Math.sin(p1)+B*Math.sin(p2);
+ o.push([Math.atan2(z,Math.sqrt(x*x+y*y))/r,Math.atan2(y,x)/r]);}return o;}
+window.show=function(o){layer.clearLayers();var me=[o.lat,o.lng];L.circleMarker(me,{radius:8,color:'#0B1F3A',fillColor:'#C9A227',fillOpacity:1}).addTo(layer).bindTooltip('Konumunuz');
+ if(o.mode==='qibla'){var line=gc(me,K,64);L.polyline(line,{color:'#0B6E4F',weight:4}).addTo(layer);L.marker(K).addTo(layer).bindTooltip('Kâbe',{permanent:true,className:'lbl'});
+  L.polyline([me,line[3]],{color:'#C9A227',weight:6}).addTo(layer);map.setView(me,15);}
+ else{(o.items||[]).forEach(function(it){L.marker([it.lat,it.lng]).addTo(layer).bindPopup(it.name);});map.setView(me,14);}};
+</script></body></html>

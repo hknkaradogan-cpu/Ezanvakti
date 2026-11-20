@@ -1,0 +1,12 @@
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.iml
+.idea/
+_site/
+out/
+test-results/
+node_modules/
+*.jks
+!android/app/debug.keystore
