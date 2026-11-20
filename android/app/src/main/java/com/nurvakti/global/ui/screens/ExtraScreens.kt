@@ -469,6 +469,7 @@ private fun fetchMetal(cur: String): Triple<Double, Double, String> {
         Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             SectionCard("NAMAZ VAKTİ: EZAN VE KIBLE") {
                 Text("Namaz Vakti: Ezan ve Kıble · ${com.nurvakti.global.BuildConfig.VERSION_NAME}"); Text(t("Her vakitte, her yerde, huzurla."))
+                Text("© 2026 By-Hkn — Tüm hakları saklıdır.", fontWeight = FontWeight.Bold, color = Brand.Gold)
                 Text(t("Reklamsız, hesap gerektirmeyen, verileri yalnızca telefonda saklayan namaz vakti uygulaması."), style = MaterialTheme.typography.bodySmall)
             }
             SectionCard(t("Veri kaynakları")) {

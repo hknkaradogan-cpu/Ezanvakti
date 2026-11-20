@@ -30,7 +30,7 @@ verify = '--verify' in sys.argv
 # Her hafız için ad eşleştirme: alternatiflerden biri; '+' ile ayrılan parçaların hepsi geçmeli
 KEYS = {'alafasy': ['alafasy', 'afasy'], 'husary': ['husary', 'hussary', 'husari', 'hosary'], 'minshawi': ['minshawi'], 'abdulbasit': ['abdulbasit', 'abdul+basit'],
         'sudais': ['sudais', 'sudaes', 'sudays'], 'shuraim': ['shuraim', 'shuraym'], 'ajamy': ['ajamy', 'ajmy', 'ajmi', 'ajami'], 'maher': ['muaiqly', 'meaqli', 'maher+mu'],
-        'hudhaify': ['hudhaify', 'huthaifi', 'hudhaifi', 'huthaify', 'hothaifi'], 'ayyoub': ['ayyoub', 'ayyub', 'ayoub'], 'jibreel': ['jibreel', 'jibril'],
+        'hudhaify': ['ali+hudhaify', 'ali+huthaifi', 'ali+hudhaifi', 'ali+huthaify', 'ali+hothaifi'], 'ayyoub': ['ayyoub', 'ayyub', 'ayoub'], 'jibreel': ['jibreel', 'jibril'],
         'shaatree': ['shaatree', 'shatri'], 'rifai': ['hani+rifai']}
 def name_match(nm, alts):
     nm = nm.lower().replace(' ', '').replace('-', '')

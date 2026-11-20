@@ -194,7 +194,7 @@ const dayIdx = () => Math.floor(Date.now() / 86400000);
 const dfmt = (o, opt = { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' }) => new Date(Date.UTC(o.y, o.m - 1, o.d, 12)).toLocaleDateString(locale(), { ...opt, timeZone: 'UTC' });
 
 routes.onboard = async () => `<div class="view" style="padding-top:40px">
-  <div class="hero center"><img src="icons/icon-192.png" width="96" height="96" alt="" style="border-radius:24px"><div class="brand" style="font-size:20px;margin-top:8px">NAMAZ VAKTİ · EZAN VE KIBLE</div><div>${t('Her vakitte, her yerde, huzurla.')}</div></div>
+  <div class="hero center"><img src="icons/icon-192.png" width="96" height="96" alt="" style="border-radius:24px"><div class="brand" style="font-size:20px;margin-top:8px">NAMAZ VAKTİ · EZAN VE KIBLE</div><div>${t('Her vakitte, her yerde, huzurla.')}</div><div class="gold" style="font-weight:800">By-Hkn</div></div>
   <div class="card"><h3>${t('Dil / Language / اللغة')}</h3><div class="chips">${[['tr', 'Türkçe'], ['en', 'English'], ['ar', 'العربية']].map(([c, n]) => `<button class="chip ${S.lang === c ? 'on' : ''}" data-a="lang" data-v="${c}">${n}</button>`).join('')}</div>
   <h3>${t('Konum izni')}</h3><p>${t('Namaz vakitlerini ve kıble yönünü bulunduğunuz yere göre hesaplamak için konumunuz kullanılır. Konumunuz yalnızca telefonunuzda işlenir; hiçbir sunucuya gönderilmez.')}</p>
   <button class="btn w" data-a="gps">${t('Konumumu kullan')}</button><p></p><button class="btn o w" data-a="manualloc">${t('Şehri elle seçeceğim')}</button>
@@ -224,7 +224,7 @@ routes.home = async () => {
   <div class="card" data-a="nav" data-v="dualar"><h3>${t('Günün duası')}</h3><b>${esc(du.title)}</b><div class="ar" style="font-size:20px">${esc(du.ar)}</div><div class="mut">${esc(du.okunus)}</div><p>${esc(tr ? du.tr : du.en)}</p><div class="mut">${t('Kaynak')}: ${esc(du.src)}</div></div>
   <div class="card" data-a="nav" data-v="esma"><h3>${t('Günün esması')}</h3><div class="ar" style="font-size:32px">${esc(e.ar)}</div><p>${esc(e.okunus)} — ${esc(tr ? e.tr : e.en)}</p><div class="mut">${t('Kaynak')}: Tirmizî, Deavât 82</div></div>
   <div class="card" data-a="nav" data-v="zikir"><h3>${t('Günün zikir önerisi')}</h3><div class="ar">${esc(z.ar)}</div><p>${esc(z.okunus)} × ${z.count} — ${esc(tr ? z.tr : z.en)}</p><div class="mut">${t('Kaynak')}: ${esc(z.src)}</div></div>
-  <p class="mut">${t('Veri kaynağı')}: ${esc(sourceLabel())} · ${t(S.asr === 'HANAFI' ? 'Hanefi ikindi' : 'Şafii/Standart ikindi')}</p></div>`;
+  <p class="mut">${t('Veri kaynağı')}: ${esc(sourceLabel())} · ${t(S.asr === 'HANAFI' ? 'Hanefi ikindi' : 'Şafii/Standart ikindi')}</p><p class="center" style="color:var(--gold);font-weight:800">© 2026 By-Hkn</p></div>`;
 };
 function tickHome() {
   const cd = $('#cd'); if (!cd) return;
@@ -605,7 +605,7 @@ routes.rehber = async (open = '') => {
 };
 routes.about = async () => {
   const ez = (await data('media/ezan.json')).ezan; let v = {}; try { v = await (await fetch('version.json', { cache: 'no-store' })).json(); } catch {}
-  return `${top(t('Hakkında ve lisanslar'))}<div class="view"><div class="card"><h3>NAMAZ VAKTİ: EZAN VE KIBLE</h3><p>Namaz Vakti: Ezan ve Kıble · ${esc(v.version || '__BUILD__')}<br>${t('Her vakitte, her yerde, huzurla.')}</p><p class="mut">${t('Reklamsız, hesap gerektirmeyen, verileri yalnızca telefonda saklayan namaz vakti uygulaması.')}</p></div>
+  return `${top(t('Hakkında ve lisanslar'))}<div class="view"><div class="card"><h3>NAMAZ VAKTİ: EZAN VE KIBLE</h3><p>Namaz Vakti: Ezan ve Kıble · ${esc(v.version || '__BUILD__')}<br>${t('Her vakitte, her yerde, huzurla.')}<br><b style="color:var(--gold)">© 2026 By-Hkn — Tüm hakları saklıdır.</b></p><p class="mut">${t('Reklamsız, hesap gerektirmeyen, verileri yalnızca telefonda saklayan namaz vakti uygulaması.')}</p></div>
    <div class="card"><h3>${t('Veri kaynakları')}</h3><ul>${['Namaz vakitleri: cihaz üzerinde astronomik hesaplama (16 yöntem); isteğe bağlı AlAdhan API (api.aladhan.com).', "Kur'an metni: Kral Fahd Kur'an Basım Kompleksi Uthmani metni, quran-json 3.1.2 paketi (CC BY 4.0).",
      'Türkçe meal: Diyanet İşleri Başkanlığı (tanzil.net); İngilizce: Saheeh International; Latin okunuş: tanzil.net.', "Kur'an sesleri: AlQuran Cloud CDN (cdn.islamic.network) ve mp3quran.net — kayıtların telif hakları sahiplerine aittir; ücretsiz dağıtım için yayımlanmıştır.",
      'Konum listesi: countries-states-cities-database (ODbL 1.0). Harita ve camiler: © OpenStreetMap katkıcıları (ODbL), Overpass API, Nominatim.', 'Altın/gümüş: gold-api.com; döviz: open.er-api.com.'].map(x => `<li>${t(x)}</li>`).join('')}</ul></div>

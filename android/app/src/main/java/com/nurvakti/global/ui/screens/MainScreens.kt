@@ -72,6 +72,7 @@ val MODE_TR = mapOf(AlertMode.FULL to "Tam ezan", AlertMode.SHORT to "Kısa ezan
         Image(painterResource(R.drawable.ic_logo), null, Modifier.size(110.dp))
         Text("NAMAZ VAKTİ", color = Brand.GoldLight, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(t("Her vakitte, her yerde, huzurla."), color = Color.White.copy(alpha = .9f))
+        Text("By-Hkn", color = Brand.GoldLight, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         Spacer(Modifier.height(28.dp))
         Card(shape = RoundedCornerShape(24.dp)) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -180,6 +181,7 @@ val MODE_TR = mapOf(AlertMode.FULL to "Tam ezan", AlertMode.SHORT to "Kısa ezan
             ArabicText(z.ar, 24); Text("${z.okunus} × ${z.count}"); Text(if (lg == "tr") z.tr else z.en); SourceLine(z.src) } }
         item { Text("${t("Veri kaynağı")}: ${today?.source ?: ""} · ${t(if (s.asr == "HANAFI") "Hanefi ikindi" else "Şafii/Standart ikindi")}",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        item { Text("© 2026 By-Hkn", Modifier.fillMaxWidth(), textAlign = TextAlign.Center, color = Brand.Gold, fontWeight = FontWeight.Bold) }
     }
 }
 
