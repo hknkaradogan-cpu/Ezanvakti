@@ -88,7 +88,7 @@ import kotlinx.serialization.json.JsonElement
             vm.toast("Veriler dışa aktarıldı")
         }
     }
-    val pinSent = t("Widget ekleme isteği gönderildi")
+    val pinSent = t("Widget isteği gönderildi. Pencere açılmazsa aşağıdaki yönergeye bakın.")
     val pinHelp = t("Widget eklemek için ana ekrana uzun basın, 'Widget'lar' bölümünden Namaz Vakti'ni seçin.")
     val pinWidget = { large: Boolean ->
         vm.toast(if (com.nurvakti.global.widget.Widgets.requestPin(ctx, large)) pinSent else pinHelp)
@@ -111,6 +111,8 @@ import kotlinx.serialization.json.JsonElement
                 Text(t("Sonraki vakit ve canlı geri sayım ya da günün tüm vakitleri ana ekranınızda görünür."), style = MaterialTheme.typography.bodySmall)
                 Button({ pinWidget(false) }, Modifier.fillMaxWidth()) { Icon(Icons.Filled.Widgets, null); Spacer(Modifier.width(8.dp)); Text(t("Geri sayım widget'ı ekle")) }
                 OutlinedButton({ pinWidget(true) }, Modifier.fillMaxWidth()) { Icon(Icons.Filled.Widgets, null); Spacer(Modifier.width(8.dp)); Text(t("Günün vakitleri widget'ı ekle")) }
+                Text(t("Widget penceresi açılmazsa (Xiaomi/Redmi/POCO gibi telefonlarda sık görülür): Uygulama izinleri → Diğer izinler → 'Ana ekrana kısayol oluştur' iznini verin, sonra tekrar deneyin. Ya da ana ekrana uzun basıp 'Widget'lar' bölümünden Namaz Vakti'ni seçin."), style = MaterialTheme.typography.bodySmall)
+                TextButton({ ctx.startActivity(Intent(AndroidSettings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + ctx.packageName)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }) { Text(t("Uygulama izinlerini aç")) }
             }
             SectionCard(t("Hesaplama yöntemi")) {
                 SwitchRow(t("Ülkeye göre otomatik seç"), s.autoMethod, "${t("Şu an")}: ${PrayerCalc.method(Times.methodId(s)).name}") { v -> vm.update { it.copy(autoMethod = v) } }
