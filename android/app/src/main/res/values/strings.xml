@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Namaz Vakti</string>
+    <string name="widget_small_name">Namaz Vakti · Geri sayım</string>
+    <string name="widget_large_name">Namaz Vakti · Günün vakitleri</string>
+    <string name="widget_small_desc">Sonraki vakit ve canlı geri sayım</string>
+    <string name="widget_large_desc">Şehir, tarih, geri sayım ve beş vakit</string>
 </resources>

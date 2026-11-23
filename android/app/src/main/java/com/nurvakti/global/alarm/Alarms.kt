@@ -109,6 +109,7 @@ object AlarmScheduler {
                 am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, t, p)
             }
         }
+        runCatching { com.nurvakti.global.widget.Widgets.refresh(ctx, s) }
         ctx.getSharedPreferences("alarm_state", Context.MODE_PRIVATE).edit()
             .putString("scheduled", evs.joinToString("\n") { "${it.at} ${it.prayer} pre=${it.pre}" }).apply()
     }

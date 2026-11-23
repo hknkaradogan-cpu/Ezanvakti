@@ -78,6 +78,11 @@ log ""; log "## Hadis ve \"kıldın mı?\" bildirimleri"
 start --es ci hadis; sleep 2; start --es ci check; sleep 3; adb shell cmd statusbar expand-notifications; shot notif_check_hadis 3
 nc=$(adb shell dumpsys notification --noredact | tr -d '\r' | grep -c "namazını kıldın mı"); [ "$nc" -gt 0 ] && ok "\"Öğle namazını kıldın mı?\" bildirimi (Kıldım ✓ düğmeli) gösterildi" || ko "Kıldın mı bildirimi yok"
 adb shell cmd statusbar collapse
+log ""; log "## Ana ekran widget'ları"
+nw=$(adb shell dumpsys appwidget | tr -d '\r' | grep -c "$PKG/.widget")
+[ "$nw" -ge 2 ] && ok "2 widget sağlayıcısı sistemde kayıtlı (Geri sayım, Günün vakitleri)" || ko "Widget sağlayıcıları bulunamadı ($nw)"
+start --es ci widgetpreview; shot widget_preview 5
+start --es ci lang:ar; sleep 2; start --es ci widgetpreview; shot widget_preview_ar 5; start --es ci lang:tr; sleep 2
 log ""; log "## Çökme kontrolü"
 adb logcat -d > $OUT/logcat.txt
 if grep -q "FATAL EXCEPTION" $OUT/logcat.txt && grep -A3 "FATAL EXCEPTION" $OUT/logcat.txt | grep -q "$PKG"; then ko "Uygulama çöktü (logcat'te FATAL EXCEPTION)"; grep -A25 "FATAL EXCEPTION" $OUT/logcat.txt | head -60 | sed 's/^/    /' >> $R

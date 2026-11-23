@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val openTarget = intent?.getStringExtra("open")
         intent?.getStringExtra("ci")?.let { CiHooks.run(this, vm, it) }
+        if (BuildConfig.DEBUG && intent?.getStringExtra("ci") == "widgetpreview") { showWidgetPreview(); return }
         setContent {
             val s by vm.settings.collectAsState()
             val lang = s?.lang ?: "tr"
@@ -35,5 +36,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /** Yalnızca debug/CI: iki widget'ı gerçek RemoteViews ile ekranda gösterir (ekran görüntüsü için). */
+    private fun showWidgetPreview() {
+        val s = kotlinx.coroutines.runBlocking { com.nurvakti.global.data.SettingsStore(this@MainActivity).get() }
+        val root = android.widget.LinearLayout(this).apply { orientation = android.widget.LinearLayout.VERTICAL; setPadding(40, 200, 40, 40); setBackgroundColor(0xFF2B3A55.toInt()) }
+        val d = resources.displayMetrics.density
+        for ((large, h) in listOf(false to 90, true to 170)) {
+            val v = com.nurvakti.global.widget.Widgets.build(this, s, large).apply(this, root)
+            root.addView(v, android.widget.LinearLayout.LayoutParams(if (large) -1 else (200 * d).toInt(), (h * d).toInt()).apply { bottomMargin = (30 * d).toInt() })
+        }
+        setContentView(root)
     }
 }
