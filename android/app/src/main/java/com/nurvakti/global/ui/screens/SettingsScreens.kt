@@ -88,6 +88,11 @@ import kotlinx.serialization.json.JsonElement
             vm.toast("Veriler dışa aktarıldı")
         }
     }
+    val pinSent = t("Widget ekleme isteği gönderildi")
+    val pinHelp = t("Widget eklemek için ana ekrana uzun basın, 'Widget'lar' bölümünden Namaz Vakti'ni seçin.")
+    val pinWidget = { large: Boolean ->
+        vm.toast(if (com.nurvakti.global.widget.Widgets.requestPin(ctx, large)) pinSent else pinHelp)
+    }
     Column(Modifier.fillMaxSize()) {
         Bar(t("Ayarlar"), back)
         Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -102,6 +107,11 @@ import kotlinx.serialization.json.JsonElement
             }
             SectionCard(t("Ezan ve bildirimler")) { Button({ go("ezan") }, Modifier.fillMaxWidth()) { Text(t("Ezan ayarlarını aç")) }
                 OutlinedButton({ go("battery") }, Modifier.fillMaxWidth()) { Text(t("Pil ve alarm rehberi")) } }
+            SectionCard(t("Ana ekran widget'ı")) {
+                Text(t("Sonraki vakit ve canlı geri sayım ya da günün tüm vakitleri ana ekranınızda görünür."), style = MaterialTheme.typography.bodySmall)
+                Button({ pinWidget(false) }, Modifier.fillMaxWidth()) { Icon(Icons.Filled.Widgets, null); Spacer(Modifier.width(8.dp)); Text(t("Geri sayım widget'ı ekle")) }
+                OutlinedButton({ pinWidget(true) }, Modifier.fillMaxWidth()) { Icon(Icons.Filled.Widgets, null); Spacer(Modifier.width(8.dp)); Text(t("Günün vakitleri widget'ı ekle")) }
+            }
             SectionCard(t("Hesaplama yöntemi")) {
                 SwitchRow(t("Ülkeye göre otomatik seç"), s.autoMethod, "${t("Şu an")}: ${PrayerCalc.method(Times.methodId(s)).name}") { v -> vm.update { it.copy(autoMethod = v) } }
                 if (!s.autoMethod) Choice(t("Yöntem"), PrayerCalc.METHODS.map { it.id to it.name }, s.method) { v -> vm.update { it.copy(method = v) } }

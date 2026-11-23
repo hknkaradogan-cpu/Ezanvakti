@@ -65,6 +65,14 @@ object Widgets {
         return v
     }
 
+    /** Ayarlar'dan widget ekleme isteği. Başlatıcı destekliyorsa onay penceresi açılır; desteklemiyorsa false döner. */
+    fun requestPin(ctx: Context, large: Boolean): Boolean {
+        val m = AppWidgetManager.getInstance(ctx)
+        if (!m.isRequestPinAppWidgetSupported) return false
+        val cn = ComponentName(ctx, if (large) LargeWidget::class.java else SmallWidget::class.java)
+        return runCatching { m.requestPinAppWidget(cn, null, null) }.getOrDefault(false)
+    }
+
     fun refresh(ctx: Context, s: Settings) {
         val m = AppWidgetManager.getInstance(ctx)
         val small = m.getAppWidgetIds(ComponentName(ctx, SmallWidget::class.java))
