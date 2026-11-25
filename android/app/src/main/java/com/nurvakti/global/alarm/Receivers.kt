@@ -46,10 +46,17 @@ class AlarmReceiver : BroadcastReceiver() {
                 if (!done) checkNotify(ctx, prayer, name, date)
             } else if (pre == AlarmScheduler.HADIS) {
                 val c = com.nurvakti.global.data.Content(ctx)
-                val idx = ((at / 3_600_000L) % c.hadis.size).toInt()
-                val h = c.hadis[idx]
+                val slot = (at / 3_600_000L)
                 val en = s.lang == "en"
-                bigNotify(ctx, Channels.HADIS, 400, if (en) "Hadith" else if (s.lang == "ar") "حديث" else "Hadis-i Şerif", (if (en) h.en else h.tr) + "\n— " + h.src)
+                // "Hadis ve ayet" modunda saat sırasıyla bir hadis, bir ayet
+                if (s.hadisContent == "BOTH" && slot % 2 == 1L || s.hadisContent == "AYET") {
+                    val a = c.ayet[((slot / (if (s.hadisContent == "BOTH") 2 else 1)) % c.ayet.size).toInt()]
+                    bigNotify(ctx, Channels.HADIS, 400, if (en) "Verse of the Quran" else if (s.lang == "ar") "آية" else "Ayet-i Kerime",
+                        (if (en) a.en else a.tr) + "\n— " + a.name + " " + a.ref, a.ar)
+                } else {
+                    val h = c.hadis[((slot / (if (s.hadisContent == "BOTH") 2 else 1)) % c.hadis.size).toInt()]
+                    bigNotify(ctx, Channels.HADIS, 400, if (en) "Hadith" else if (s.lang == "ar") "حديث" else "Hadis-i Şerif", (if (en) h.en else h.tr) + "\n— " + h.src)
+                }
             } else if (pre > 0) {
                 notify(ctx, Channels.PRE, 200 + prayer.hashCode() % 50, "$name vaktine $pre dakika", "${s.place.name} · $name $time")
             } else if (a != null) when (a.mode) {
@@ -87,12 +94,13 @@ class BootReceiver : BroadcastReceiver() {
     }
 }
 
-fun bigNotify(ctx: Context, channel: String, id: Int, title: String, text: String) {
+fun bigNotify(ctx: Context, channel: String, id: Int, title: String, text: String, arabic: String? = null) {
     if (android.os.Build.VERSION.SDK_INT >= 33 &&
         ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
     val open = PendingIntent.getActivity(ctx, 0, Intent(ctx, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
     val n = NotificationCompat.Builder(ctx, channel).setSmallIcon(R.drawable.ic_stat_nur).setContentTitle(title).setContentText(text)
-        .setStyle(NotificationCompat.BigTextStyle().bigText(text)).setContentIntent(open).setAutoCancel(true).build()
+        .setStyle(NotificationCompat.BigTextStyle().bigText(if (arabic != null) arabic + "\n\n" + text else text)).setContentIntent(open).setAutoCancel(true)
+        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC).setPriority(NotificationCompat.PRIORITY_HIGH).setShowWhen(true).build()
     ctx.getSystemService(NotificationManager::class.java).notify(id, n)
 }
 

@@ -25,7 +25,7 @@ object Channels {
     const val PRE = "vakit_oncesi_v1"
     const val DOWNLOAD = "indirme_v1"
     const val CHECK = "namaz_kontrol_v1"
-    const val HADIS = "hadis_v1"
+    const val HADIS = "hadis_v2"   // v2: kilit ekranında tam içerik
     fun create(ctx: Context) {
         val nm = ctx.getSystemService(NotificationManager::class.java)
         val sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
@@ -39,7 +39,9 @@ object Channels {
         nm.createNotificationChannel(NotificationChannel(PRE, "Vakit öncesi hatırlatma", NotificationManager.IMPORTANCE_HIGH).apply { setSound(sound, attrs) })
         nm.createNotificationChannel(NotificationChannel(DOWNLOAD, "İndirmeler", NotificationManager.IMPORTANCE_LOW))
         nm.createNotificationChannel(NotificationChannel(CHECK, "Namaz kıldın mı? hatırlatması", NotificationManager.IMPORTANCE_DEFAULT))
-        nm.createNotificationChannel(NotificationChannel(HADIS, "Günün hadisi", NotificationManager.IMPORTANCE_DEFAULT).apply { setSound(null, null) })
+        nm.deleteNotificationChannel("hadis_v1")
+        nm.createNotificationChannel(NotificationChannel(HADIS, "Hadis ve ayet", NotificationManager.IMPORTANCE_HIGH).apply {
+            setSound(null, null); enableVibration(false); lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC; description = "Kilit ekranında görünen hadis ve ayet bildirimleri" })
     }
 }
 

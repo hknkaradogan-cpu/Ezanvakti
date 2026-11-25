@@ -269,6 +269,10 @@ import kotlinx.serialization.json.JsonElement
             Text(t("Bildirimdeki \"Kıldım ✓\" düğmesine basınca namaz takibine işlenir ve bildirim kapanır. Zaten işaretlediyseniz soru gelmez."), style = MaterialTheme.typography.bodySmall)
             Choice(t("Hadis bildirimi"), listOf("OFF" to t("Kapalı"), "DAILY" to t("Günde bir"), "HOURLY" to t("Saatte bir (08:00–22:00)")), s.hadisMode) { v -> vm.update { it.copy(hadisMode = v) } }
             if (s.hadisMode == "DAILY") Choice(t("Saat"), (5..23).map { it to "%02d:00".format(it) }, s.hadisHour) { v -> vm.update { it.copy(hadisHour = v) } }
+            if (s.hadisMode != "OFF") Choice(t("İçerik"), listOf("BOTH" to t("Hadis ve ayet (sırayla)"), "HADIS" to t("Yalnızca hadis"), "AYET" to t("Yalnızca ayet")), s.hadisContent) { v -> vm.update { it.copy(hadisContent = v) } }
+            Text(t("Kilit ekranında tam metni görmek için telefonun bildirim ayarında \"Kilit ekranında tüm içeriği göster\" açık olmalı."), style = MaterialTheme.typography.bodySmall)
+            OutlinedButton({ ctx.startActivity(Intent(AndroidSettings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).putExtra(AndroidSettings.EXTRA_APP_PACKAGE, ctx.packageName)
+                .putExtra(AndroidSettings.EXTRA_CHANNEL_ID, com.nurvakti.global.alarm.Channels.HADIS)) }, Modifier.fillMaxWidth()) { Text(t("Kilit ekranı bildirim ayarını aç")) }
         } }
         item { Text(t("Ezan sesleri"), style = MaterialTheme.typography.titleLarge) }
         items(vm.content.ezans) { e ->
