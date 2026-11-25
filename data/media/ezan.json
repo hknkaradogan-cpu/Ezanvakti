@@ -1,0 +1,56 @@
+{
+ "ezan": [
+  {
+   "id": "klasik",
+   "tr": "Klasik ezan",
+   "en": "Classic adhan",
+   "file": "klasik.mp3",
+   "bundled": true,
+   "author": "Adam-synagda",
+   "license": "CC0 1.0 (Kamu malı)",
+   "source": "https://commons.wikimedia.org/wiki/File:Beautiful_adhan.ogg",
+   "changes": "MP3 (96 kb/s) olarak dönüştürüldü, ses seviyesi normalize edildi (marsathan-adhan v2).",
+   "available": true,
+   "size": 1848886
+  },
+  {
+   "id": "kisa",
+   "tr": "Kısa ezan (ilk 42 sn)",
+   "en": "Short adhan (first 42 s)",
+   "file": "kisa.mp3",
+   "bundled": true,
+   "author": "Adam-synagda",
+   "license": "CC0 1.0 (Kamu malı)",
+   "source": "https://commons.wikimedia.org/wiki/File:Beautiful_adhan.ogg",
+   "changes": "Klasik ezanın ilk 42 saniyesi, 5 sn sesi azalarak biten kısaltma.",
+   "available": true,
+   "size": 504730
+  },
+  {
+   "id": "mekke",
+   "tr": "Mekke tarzı ezan (Mescid-i Haram, akşam)",
+   "en": "Makkah style (Masjid al-Haram, Maghrib)",
+   "file": "mekke.mp3",
+   "bundled": false,
+   "author": "3omar Faruq",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Maghrib_Adhan_at_the_Masjid_al_Haram,_Mecca_-_25_Feb,_2012.webm",
+   "changes": "Videodan ses çıkarıldı, 1:52–4:56 arası (ezan) kesildi, MP3 96 kb/s.",
+   "available": true,
+   "size": 2208716
+  },
+  {
+   "id": "medine",
+   "tr": "Medine tarzı ezan (Mescid-i Nebevî)",
+   "en": "Madinah style (Prophet's Mosque)",
+   "file": "medine.mp3",
+   "bundled": false,
+   "author": "ejaz215 (Freesound #33937)",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:33937_ejaz215_call-to-prayer-from-the-prophet-s-mo.ogg",
+   "changes": "MP3 96 kb/s olarak dönüştürüldü, ses seviyesi normalize edildi.",
+   "available": true,
+   "size": 2239820
+  }
+ ]
+}
